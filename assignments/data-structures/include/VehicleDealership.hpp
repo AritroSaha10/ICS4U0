@@ -10,7 +10,7 @@ class VehicleDealership {
     public:
         VehicleDealership(std::string name, BankAccount* bankAccount);
         std::vector<Vehicle*> getVehicles();
-        Vehicle* buyVehicleTo(int idx);
+        Vehicle* buyVehicleFrom(int idx);
         int sellVehicleTo(Vehicle* vehicle);
     private:
         std::string name;
