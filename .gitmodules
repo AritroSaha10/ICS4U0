@@ -1,0 +1,3 @@
+[submodule "Fraser-ICS4U"]
+	path = course-repo
+	url = https://github.com/AritroSaha10/Fraser-ICS4U.git
