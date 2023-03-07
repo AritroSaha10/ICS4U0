@@ -6,7 +6,7 @@ class Person;
 
 class Vehicle {
 public:
-    Vehicle();
+    Vehicle(std::string name, double price, int wheels, int doors, int seats, int maxPassengers, std::string manufacturer, double mileage, double horsepower, std::string color);
     virtual ~Vehicle() = 0;
     bool start();
     bool stop();
@@ -17,7 +17,7 @@ public:
     bool removePassenger(int idx);
     bool changeColor(std::string newColor);
     virtual std::string serializeToJSON() = 0;
-private:
+protected:
     std::string name;
     double price;
     int wheels;
