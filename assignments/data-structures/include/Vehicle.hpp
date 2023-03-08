@@ -25,7 +25,9 @@ public:
     double getPrice() const;
     std::string getName() const;
     virtual json serializeToJSON();
-    static Vehicle deserializeFromJSON();
+    static Vehicle deserializeFromJSON(const json &data);
+    void saveAsFile();
+    static Vehicle loadFromUUID(std::string uuid);
 protected:
     std::string name;
     double price;

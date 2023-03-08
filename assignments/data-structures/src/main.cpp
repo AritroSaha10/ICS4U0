@@ -17,33 +17,38 @@ void testSerializationBankAccount() {
 
 int main() {
     // testSerializationBankAccount();
-    BankAccount hondaDealershipBankAccount(0, 1000000, 1000000);
-    VehicleDealership hondaDealership("Honda Dealership", hondaDealershipBankAccount);
+    VehicleDealership hondaDealership = VehicleDealership::loadFromUUID("3f4294f0-451a-474d-9912-823672c66b6f");
+    // VehicleDealership hondaDealership("Honda Dealership", new BankAccount(0, 1000000, 1000000));
     Sedan sedan1("Honda Accord", 50000.0, "Honda", 0, 200, 300, 50, 20, "Green");
     Sedan sedan2("Honda Civic", 35042.0, "Honda", 0, 150, 175, 20, 20, "Grey");
     hondaDealership.giveVehicle(&sedan1);
     hondaDealership.giveVehicle(&sedan2);
 
+    std::string personUUID;
+    std::cout << "UUID of person: ";
+    std::cin >> personUUID;
+    Person p1 = Person::loadFromUUID(personUUID);
+    p1.bankAccount->deposit(100000);
+
     // std::cout << sedan1.serializeToJSON() << "\n\n";
 
     for (Vehicle* vehicle : hondaDealership.getVehicles()) {
         std::cout << vehicle->getName() << " - $" << vehicle->getPrice() << " - " << vehicle->serializeToJSON() << "\n\n";
-    }
 
-    BankAccount person1Bank(0, 60000, 150000);
-    Person p1("Aritro", "", "Saha", 1158019200, 167.64, &person1Bank);
-    person1Bank.deposit(100000);
-
-    Vehicle* boughtVehicle = hondaDealership.buyVehicleFrom(0, p1.bankAccount);
-    if (boughtVehicle == nullptr) {
-        std::cout << "Something went wrong when buying the vehicle\n";
-        return 1;
+        Vehicle* boughtVehicle = hondaDealership.buyVehicleFrom(0, p1.bankAccount);
+        if (boughtVehicle == nullptr) {
+            std::cout << "Something went wrong when buying the vehicle\n";
+            return 1;
+        }
+        p1.vehicles.push_back(boughtVehicle);
     }
-    p1.vehicles.push_back(boughtVehicle);
 
     for (Vehicle* vehicle : p1.vehicles) {
         std::cout << vehicle->getName() << " - $" << vehicle->getPrice() << " - " << vehicle->serializeToJSON() << "\n\n";
     }
+
+    p1.saveAsFile();
+    hondaDealership.saveAsFile();
 
 
     return 0;

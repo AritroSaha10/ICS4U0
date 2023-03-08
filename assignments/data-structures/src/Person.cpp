@@ -4,6 +4,10 @@
 // #include "include/uuid_v4/uuid_v4.h.old"
 #include "util.hpp"
 
+#include <filesystem>
+#include <fstream>
+
+namespace fs = std::filesystem;
 using namespace std::chrono;
 
 Person::Person(std::string firstName, std::string middleName, std::string lastName, int birthTimestamp, double height,
@@ -127,6 +131,9 @@ json Person::serializeToJSON() {
     serialized["birthTimestamp"] = birthTimestamp;
     serialized["height"] = height;
     serialized["bankAccount"] = bankAccount->serializeToJSON();
+    for (Vehicle* vehicle : vehicles) {
+        serialized["vehicles"].push_back(vehicle->serializeToJSON());
+    }
 
     return serialized;
 }
@@ -134,7 +141,7 @@ json Person::serializeToJSON() {
 Person Person::deserializeFromJSON(const json &data) {
     // Ensure that all keys are there
     std::vector<std::string> requiredKeys = {"uuid", "firstName", "middleName", "lastName", "birthTimestamp", "height",
-                                             "bankAccount"};
+                                             "bankAccount", "vehicles"};
     for (const std::string &key: requiredKeys) {
         if (!data.contains(key)) {
             throw;
@@ -144,10 +151,49 @@ Person Person::deserializeFromJSON(const json &data) {
     // Make a BankAccount from the given info
     auto* tmpAccount = new BankAccount(BankAccount::deserializeFromJSON(data["bankAccount"]));
 
+    Person tmpPerson{data["firstName"].get<std::string>(), data["middleName"].get<std::string>(),
+                     data["lastName"].get<std::string>(), data["birthTimestamp"].get<int>(), data["height"].get<double>(),
+                     tmpAccount, data["uuid"].get<std::string>()};
+
+    for (const json& vehicleData : data["vehicles"].get<json>()) {
+        tmpPerson.vehicles.push_back(new Vehicle(Vehicle::deserializeFromJSON(vehicleData)));
+    }
+
     // Initialize Person using all the info
-    return {data["firstName"].get<std::string>(), data["middleName"].get<std::string>(),
-            data["lastName"].get<std::string>(), data["birthTimestamp"].get<int>(), data["height"].get<double>(),
-            tmpAccount, data["uuid"].get<std::string>()};
+    return tmpPerson;
+}
+
+void Person::saveAsFile() {
+    json serializedJSON = serializeToJSON();
+
+    // Make data directory if needed
+    if (!fs::is_directory("data") || !fs::exists("data")) { // Check if folder exists
+        fs::create_directory("data");
+    }
+
+    // Make bank accounts directory if needed
+    if (!fs::is_directory("data/people") || !fs::exists("data/people")) {
+        fs::create_directory("data/people");
+    }
+
+    // Write data to file
+    std::ofstream file("data/people/" + uuid + ".json");
+    file << std::setw(4) << serializedJSON << std::endl;
+    file.close();
+}
+
+Person Person::loadFromUUID(std::string uuid) {
+    std::string fname = "data/people/" + uuid + ".json";
+    if (!fs::exists(fname)) {
+        // File needs to exist to read anything
+        throw;
+    }
+
+    std::ifstream file(fname);
+    json importedJSON;
+    file >> importedJSON;
+
+    return Person::deserializeFromJSON(importedJSON);
 }
 
 Person::~Person() {

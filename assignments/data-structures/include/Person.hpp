@@ -11,9 +11,8 @@ class Vehicle;
 
 class Person {
 public:
-    // DELETE THE BANKACCOUNT PART OF THESE CONSTRUCTORS
-    // MAKE THE BANK ACCOUNT AND MANAGE ITS POINTERS INTERNALLY
-    // FIXES MANY PROBLEMS AT ONCE
+    // MAKE SURE TO MAKE THE BANK ACCOUNT IN THE INITALIZATION STATEMENT
+    // AND ONLY MANAGE THE POINTER IN THIS CLASS
     Person(std::string firstName, std::string middleName, std::string lastName, int birthTimestamp, double height, BankAccount* bankAccount);
     Person(std::string firstName, std::string middleName, std::string lastName, int birthTimestamp, double height, BankAccount* bankAccount, std::string uuid);
     std::string getFirstName();
@@ -30,6 +29,9 @@ public:
 
     json serializeToJSON();
     static Person deserializeFromJSON(const json &data);
+    void saveAsFile();
+    static Person loadFromUUID(std::string uuid);
+
     std::vector<Vehicle*> vehicles;
     BankAccount* bankAccount;
     ~Person();
