@@ -5,11 +5,13 @@
 
 class Sedan : public Vehicle {
 public:
-    Sedan(std::string name, double price, std::string manufacturer, double mileage, double horsepower, std::string color);
-    double getMaxCapacity();
-    double getTowingMaxLoad();
-    std::string serializeToJSON();
-    ~Sedan();
+    Sedan(std::string name, double price, std::string manufacturer, double mileage, double horsepower, double maxSpeed, double trunkCapacity, double towingMaxLoad, std::string color);
+    double getTrunkCapacity() const;
+    double getTowingMaxLoad() const;
+    json serializeToJSON() override;
+    static Sedan deserializeFromJSON(const json &data);
+    void saveAsFile();
+    static Sedan loadFromUUID(std::string uuid);
 private:
     double trunkCapacity;
     double towingMaxLoad;

@@ -7,7 +7,6 @@ class Person;
 class Vehicle {
 public:
     Vehicle(std::string name, double price, int wheels, int doors, int seats, int maxPassengers, std::string manufacturer, double mileage, double horsepower, double maxSpeed, std::string color);
-    virtual ~Vehicle() = 0;
     bool start();
     bool stop();
     bool drive(double distance);
@@ -16,7 +15,7 @@ public:
     bool addPassenger(Person* passenger);
     bool removePassenger(Person* passenger);
     bool removePassenger(int idx);
-    bool changeColor(std::string newColor);
+    bool changeColor(const std::string& newColor);
     bool changePrice(double newPrice);
     double getMaxSpeed() const;
     double getWheels() const;
@@ -24,7 +23,11 @@ public:
     double getSeats() const;
     double getHorsepower() const;
     double getPrice() const;
-    virtual std::string serializeToJSON() = 0;
+    std::string getName() const;
+    virtual json serializeToJSON();
+    static Vehicle deserializeFromJSON(const json &data);
+    void saveAsFile();
+    static Vehicle loadFromUUID(std::string uuid);
 protected:
     std::string name;
     double price;
@@ -40,4 +43,5 @@ protected:
     std::vector<Person*> passengers;
     bool started;
     std::string color;
+    std::string uuid;
 };

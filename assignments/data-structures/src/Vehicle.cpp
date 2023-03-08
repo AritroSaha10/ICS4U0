@@ -1,4 +1,11 @@
 #include "Vehicle.hpp"
+// #include <uuid_v4_old/uuid_v4_old.h>
+#include <algorithm>
+#include "util.hpp"
+#include <filesystem>
+#include <fstream>
+
+namespace fs = std::filesystem;
 
 Vehicle::Vehicle(std::string name, double price, int wheels, int doors, int seats, int maxPassengers,
                  std::string manufacturer, double mileage, double horsepower, double maxSpeed, std::string color) {
@@ -15,6 +22,10 @@ Vehicle::Vehicle(std::string name, double price, int wheels, int doors, int seat
     this->color = color;
     this->driver = nullptr;
     this->started = false;
+
+    // UUIDv4::UUIDGenerator<std::mt19937_64> uuidGenerator;
+    // this->uuid = uuidGenerator.getUUID().str();
+    this->uuid = generate_uuid_v4();
 }
 
 bool Vehicle::start() {
@@ -47,7 +58,7 @@ bool Vehicle::drive(double distance) {
     return true;
 }
 
-bool Vehicle::addDriver(Person* driver) {
+bool Vehicle::addDriver(Person *driver) {
     if (this->driver != nullptr) {
         // Don't overwrite the driver if there already is one
         return false;
@@ -81,7 +92,7 @@ bool Vehicle::addPassenger(Person *passenger) {
     return true;
 }
 
-bool Vehicle::removePassenger(Person* passenger) {
+bool Vehicle::removePassenger(Person *passenger) {
     auto passengerPos = std::find(passengers.begin(), passengers.end(), passenger);
     if (passengerPos != passengers.end()) {
         // No such passenger, cannot remove
@@ -102,8 +113,8 @@ bool Vehicle::removePassenger(int idx) {
     return true;
 }
 
-bool Vehicle::changeColor(std::string newColor) {
-    if (newColor.size() == 0 || color == newColor) {
+bool Vehicle::changeColor(const std::string &newColor) {
+    if (newColor.empty() || color == newColor) {
         return false;
     }
 
@@ -138,4 +149,87 @@ double Vehicle::getSeats() const {
 
 double Vehicle::getHorsepower() const {
     return horsepower;
+}
+
+double Vehicle::getPrice() const {
+    return price;
+}
+
+std::string Vehicle::getName() const {
+    return name;
+}
+
+json Vehicle::serializeToJSON() {
+    json serialized = {};
+
+    // Store all important info into JSON object
+    serialized["uuid"] = uuid;
+    serialized["name"] = name;
+    serialized["price"] = price;
+    serialized["wheels"] = wheels;
+    serialized["doors"] = doors;
+    serialized["seats"] = seats;
+    serialized["maxPassengers"] = maxPassengers;
+    serialized["maxSpeed"] = maxSpeed;
+    serialized["manufacturer"] = manufacturer;
+    serialized["mileage"] = mileage;
+    serialized["horsepower"] = horsepower;
+    // serialized["driver"] = driver; // Are these seriously necessary? I feel like these don't really need to be saved...
+    // serialized["passengers'] = passengers;
+    serialized["started"] = started;
+    serialized["color"] = color;
+    serialized["uuid"] = uuid;
+
+    return serialized;
+}
+
+Vehicle Vehicle::deserializeFromJSON(const json &data) {
+    // Ensure that all keys are there
+    std::vector<std::string> requiredKeys = {"uuid", "name", "price", "wheels", "doors", "seats",
+                                             "maxPassengers", "maxSpeed", "manufacturer", "mileage", "horsepower",
+                                             "started", "color"};
+    for (const std::string &key: requiredKeys) {
+        if (!data.contains(key)) {
+            throw;
+        }
+    }
+
+    // Initialize Vehicle using all the info
+    return {data["name"].get<std::string>(), data["price"].get<double>(), data["wheels"].get<int>(),
+            data["doors"].get<int>(), data["seats"].get<int>(), data["maxPassengers"].get<int>(),
+            data["manufacturer"].get<std::string>(), data["mileage"].get<double>(), data["horsepower"].get<double>(),
+            data["maxSpeed"].get<double>(), data["color"].get<std::string>()};
+}
+
+void Vehicle::saveAsFile() {
+    json serializedJSON = serializeToJSON();
+
+    // Make data directory if needed
+    if (!fs::is_directory("data") || !fs::exists("data")) { // Check if folder exists
+        fs::create_directory("data");
+    }
+
+    // Make bank accounts directory if needed
+    if (!fs::is_directory("data/vehicles") || !fs::exists("data/vehicles")) {
+        fs::create_directory("data/vehicles");
+    }
+
+    // Write data to file
+    std::ofstream file("data/vehicles/" + uuid + ".json");
+    file << std::setw(4) << serializedJSON << std::endl;
+    file.close();
+}
+
+Vehicle Vehicle::loadFromUUID(std::string uuid) {
+    std::string fname = "data/vehicles/" + uuid + ".json";
+    if (!fs::exists(fname)) {
+        // File needs to exist to read anything
+        throw;
+    }
+
+    std::ifstream file(fname);
+    json importedJSON;
+    file >> importedJSON;
+
+    return Vehicle::deserializeFromJSON(importedJSON);
 }

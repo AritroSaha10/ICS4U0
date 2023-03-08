@@ -3,7 +3,6 @@
 
 class Motorcycle : public Vehicle {
 public:
-    Motorcycle(std::string name, double price, std::string manufacturer, double mileage, double horsepower, std::string color);
-    std::string serializeToJSON();
-    ~Motorcycle();
+    Motorcycle(std::string name, double price, std::string manufacturer, double mileage, double horsepower, double maxSpeed, std::string color);
+    json serializeToJSON() override;
 };
