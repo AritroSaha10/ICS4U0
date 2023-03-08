@@ -23,7 +23,9 @@ public:
     double getSeats() const;
     double getHorsepower() const;
     double getPrice() const;
-    virtual std::string serializeToJSON() = 0;
+    std::string getName() const;
+    virtual json serializeToJSON();
+    static Vehicle deserializeFromJSON();
 protected:
     std::string name;
     double price;
@@ -39,4 +41,5 @@ protected:
     std::vector<Person*> passengers;
     bool started;
     std::string color;
+    std::string uuid;
 };

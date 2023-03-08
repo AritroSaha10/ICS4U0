@@ -14,6 +14,10 @@ double Sedan::getTowingMaxLoad() const {
     return towingMaxLoad;
 }
 
-std::string Sedan::serializeToJSON() {
-    throw;
+json Sedan::serializeToJSON() {
+    json vehicleSerialized = Vehicle::serializeToJSON();
+    vehicleSerialized["trunkCapacity"] = trunkCapacity;
+    vehicleSerialized["towingMaxLoad"] = towingMaxLoad;
+
+    return vehicleSerialized;
 }

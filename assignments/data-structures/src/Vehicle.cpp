@@ -1,5 +1,7 @@
 #include "Vehicle.hpp"
+// #include <uuid_v4_old/uuid_v4_old.h>
 #include <algorithm>
+#include "util.hpp"
 
 Vehicle::Vehicle(std::string name, double price, int wheels, int doors, int seats, int maxPassengers,
                  std::string manufacturer, double mileage, double horsepower, double maxSpeed, std::string color) {
@@ -16,6 +18,10 @@ Vehicle::Vehicle(std::string name, double price, int wheels, int doors, int seat
     this->color = color;
     this->driver = nullptr;
     this->started = false;
+
+    // UUIDv4::UUIDGenerator<std::mt19937_64> uuidGenerator;
+    // this->uuid = uuidGenerator.getUUID().str();
+    this->uuid = generate_uuid_v4();
 }
 
 bool Vehicle::start() {
@@ -143,4 +149,32 @@ double Vehicle::getHorsepower() const {
 
 double Vehicle::getPrice() const {
     return price;
+}
+
+std::string Vehicle::getName() const {
+    return name;
+}
+
+json Vehicle::serializeToJSON() {
+    json serialized = {};
+
+    // Store all important info into JSON object
+    serialized["uuid"] = uuid;
+    serialized["name"] = name;
+    serialized["price"] = price;
+    serialized["wheels"] = wheels;
+    serialized["doors"] = doors;
+    serialized["seats"] = seats;
+    serialized["maxPassengers"] = maxPassengers;
+    serialized["maxSpeed"] = maxSpeed;
+    serialized["manufacturer"] = manufacturer;
+    serialized["mileage"] = mileage;
+    serialized["horsepower"] = horsepower;
+    // serialized["driver"] = driver; // Are these seriously necessary? I feel like these don't really need to be saved...
+    // serialized["passengers'] = passengers;
+    serialized["started"] = started;
+    serialized["color"] = color;
+    serialized["uuid"] = uuid;
+
+    return serialized;
 }

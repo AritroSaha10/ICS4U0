@@ -5,6 +5,6 @@ Motorcycle::Motorcycle(std::string name, double price, std::string manufacturer,
 
 }
 
-std::string Motorcycle::serializeToJSON() {
-    throw;
+json Motorcycle::serializeToJSON() {
+    return Vehicle::serializeToJSON();
 }

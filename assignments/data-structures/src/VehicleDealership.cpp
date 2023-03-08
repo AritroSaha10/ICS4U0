@@ -1,8 +1,13 @@
 #include "VehicleDealership.hpp"
+// #include "include/uuid_v4/uuid_v4.h.old"
+#include <util.hpp>
 
-VehicleDealership::VehicleDealership(std::string name, BankAccount *bankAccount) {
+VehicleDealership::VehicleDealership(std::string name, BankAccount &account) : bankAccount(account) {
     this->name = name;
-    this->bankAccount = bankAccount;
+
+    // UUIDv4::UUIDGenerator<std::mt19937_64> uuidGenerator;
+    // this->uuid = uuidGenerator.getUUID().str();
+    this->uuid = generate_uuid_v4();
 }
 
 std::vector<Vehicle*> VehicleDealership::getVehicles() {
@@ -17,7 +22,7 @@ Vehicle* VehicleDealership::buyVehicleFrom(int idx, BankAccount* buyerBankAccoun
 
     Vehicle* desiredVehicle = vehicles[idx];
     // Try making the transaction
-    if (!BankAccount::makeTransaction(buyerBankAccount, bankAccount, desiredVehicle->getPrice())) {
+    if (!BankAccount::makeTransaction(buyerBankAccount, &bankAccount, desiredVehicle->getPrice())) {
         // Transaction didn't go through (not enough money / withdraw limit)
         return nullptr;
     }
@@ -35,11 +40,16 @@ int VehicleDealership::sellVehicleTo(Vehicle* vehicle, BankAccount* sellerBankAc
 
     // Try making the transaction
     double vehiclePrice = vehicle->getPrice();
-    if (!BankAccount::makeTransaction(bankAccount, sellerBankAccount, vehiclePrice)) {
+    if (!BankAccount::makeTransaction(&bankAccount, sellerBankAccount, vehiclePrice)) {
         // Transaction wasn't possible and didn't occur, don't get vehicle
         return -1;
     }
 
+    vehicles.push_back(vehicle);
+    return (int) vehicles.size() - 1;
+}
+
+int VehicleDealership::giveVehicle(Vehicle *vehicle) {
     vehicles.push_back(vehicle);
     return (int) vehicles.size() - 1;
 }

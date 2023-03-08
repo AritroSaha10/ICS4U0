@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(DataStructures)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
@@ -20,5 +20,5 @@ file(GLOB all_SRCS
         "${PROJECT_SOURCE_DIR}/src/*.c"
         )
 
-add_executable(DataStructures ${all_SRCS})
+add_executable(DataStructures ${all_SRCS} src/util.cpp)
 # target_link_libraries(DataStructures SHARED)
