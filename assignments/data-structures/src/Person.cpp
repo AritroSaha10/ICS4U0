@@ -75,7 +75,7 @@ bool Person::changeHeight(double delta) {
 double Person::getAge() const {
     int64_t currTimeSeconds = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
     int64_t ageSeconds = currTimeSeconds - birthTimestamp;
-    double ageYears = ageSeconds / 60 / 60 / 24 / 365;
+    double ageYears = ageSeconds / 60.0 / 60.0 / 24.0 / 365.0;
 
     return ageYears;
 }

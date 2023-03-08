@@ -140,3 +140,7 @@ double Vehicle::getSeats() const {
 double Vehicle::getHorsepower() const {
     return horsepower;
 }
+
+double Vehicle::getPrice() const {
+    return price;
+}
