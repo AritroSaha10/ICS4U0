@@ -16,7 +16,7 @@ public:
     bool addPassenger(Person* passenger);
     bool removePassenger(Person* passenger);
     bool removePassenger(int idx);
-    bool changeColor(std::string newColor);
+    bool changeColor(const std::string& newColor);
     bool changePrice(double newPrice);
     double getMaxSpeed() const;
     double getWheels() const;

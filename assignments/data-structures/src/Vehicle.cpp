@@ -1,4 +1,5 @@
 #include "Vehicle.hpp"
+#include <algorithm>
 
 Vehicle::Vehicle(std::string name, double price, int wheels, int doors, int seats, int maxPassengers,
                  std::string manufacturer, double mileage, double horsepower, double maxSpeed, std::string color) {
@@ -102,8 +103,8 @@ bool Vehicle::removePassenger(int idx) {
     return true;
 }
 
-bool Vehicle::changeColor(std::string newColor) {
-    if (newColor.size() == 0 || color == newColor) {
+bool Vehicle::changeColor(const std::string& newColor) {
+    if (newColor.empty() || color == newColor) {
         return false;
     }
 
