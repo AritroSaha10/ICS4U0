@@ -6,7 +6,7 @@ class Person;
 
 class Vehicle {
 public:
-    Vehicle(std::string name, double price, int wheels, int doors, int seats, int maxPassengers, std::string manufacturer, double mileage, double horsepower, std::string color);
+    Vehicle(std::string name, double price, int wheels, int doors, int seats, int maxPassengers, std::string manufacturer, double mileage, double horsepower, double maxSpeed, std::string color);
     virtual ~Vehicle() = 0;
     bool start();
     bool stop();
