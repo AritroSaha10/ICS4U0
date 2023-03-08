@@ -22,7 +22,7 @@ double BankAccount::getBalance() const {
 }
 
 bool BankAccount::withdraw(double amount) {
-    if (amount > withdrawLimit || amount > balance - minBalance) {
+    if (!checkWithdraw(amount)) {
         // Don't allow an impossible withdraw
         return false;
     }
@@ -32,11 +32,36 @@ bool BankAccount::withdraw(double amount) {
 }
 
 bool BankAccount::deposit(double amount) {
-    if (amount > depositLimit) {
+    if (!checkDeposit(amount)) {
         // Don't allow an impossible deposit
         return false;
     }
 
     balance += amount;
     return true;
+}
+
+bool BankAccount::makeTransaction(BankAccount* sender, BankAccount* receiver, double amount) {
+    // Confirm transactions are possible
+    if (!BankAccount::checkTransaction(sender, receiver, amount)) {
+        return false;
+    }
+
+    // Make the transactions
+    sender->withdraw(amount);
+    receiver->deposit(amount);
+
+    return true;
+}
+
+bool BankAccount::checkTransaction(BankAccount* sender, BankAccount* receiver, double proposedAmount) {
+    return sender->checkWithdraw(proposedAmount) && receiver->checkDeposit(proposedAmount);
+}
+
+bool BankAccount::checkWithdraw(double proposedAmount) const {
+    return proposedAmount <= withdrawLimit && proposedAmount <= balance - minBalance;
+}
+
+bool BankAccount::checkDeposit(double proposedAmount) {
+    return proposedAmount > depositLimit;
 }

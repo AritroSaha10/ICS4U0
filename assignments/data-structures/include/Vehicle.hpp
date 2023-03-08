@@ -23,6 +23,7 @@ public:
     double getDoors() const;
     double getSeats() const;
     double getHorsepower() const;
+    double getPrice() const;
     virtual std::string serializeToJSON() = 0;
 protected:
     std::string name;
