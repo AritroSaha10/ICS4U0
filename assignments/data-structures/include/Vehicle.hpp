@@ -14,15 +14,8 @@ public:
     bool addDriver(Person* driver);
     bool removeDriver();
     bool addPassenger(Person* passenger);
-    bool removePassenger(Person* passenger);
     bool removePassenger(int idx);
     bool changeColor(std::string newColor);
-    bool changePrice(double newPrice);
-    double getMaxSpeed() const;
-    double getWheels() const;
-    double getDoors() const;
-    double getSeats() const;
-    double getHorsepower() const;
     virtual std::string serializeToJSON() = 0;
 protected:
     std::string name;
