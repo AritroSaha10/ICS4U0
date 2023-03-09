@@ -33,9 +33,9 @@ BankAccount::BankAccount(double startingBalance, double minBalance, double withd
     this->uuid = uuid;
 }
 
-BankAccount::BankAccount(double minBalance, double withdrawLimit, double depositLimit) {
+BankAccount::BankAccount(double withdrawLimit, double depositLimit) {
     this->balance = 0.0;
-    this->minBalance = minBalance;
+    this->minBalance = 0.0;
     this->withdrawLimit = withdrawLimit;
     this->depositLimit = depositLimit;
 
@@ -116,7 +116,7 @@ BankAccount BankAccount::deserializeFromJSON(const json &data) {
     std::vector<std::string> requiredKeys = {"uuid", "balance", "minBalance", "withdrawLimit", "depositLimit"};
     for (const std::string &key: requiredKeys) {
         if (!data.contains(key)) {
-            throw;
+            throw std::runtime_error(key + " does not exist in JSON");
         }
     }
 
@@ -147,6 +147,7 @@ void BankAccount::saveAsFile() {
     file.close();
 }
 
+/*
 BankAccount BankAccount::loadFromUUID(std::string uuid) {
     std::string fname = "data/bank_accounts/" + uuid + ".json";
     if (!fs::exists(fname)) {
@@ -160,6 +161,7 @@ BankAccount BankAccount::loadFromUUID(std::string uuid) {
 
     return BankAccount::deserializeFromJSON(importedJSON);
 }
+ */
 
 std::ostream & operator <<(std::ostream &out, const BankAccount &obj) {
     out << "  Balance: $" << FormatWithCommas(obj.balance) << "\n  Minimum balance: $" << FormatWithCommas(obj.minBalance) << "\n  Withdraw limit: $" << FormatWithCommas(obj.withdrawLimit) << "\n  Deposit limit: $" << FormatWithCommas(obj.depositLimit) << "\n";

@@ -57,6 +57,11 @@ int VehicleDealership::sellVehicleTo(Vehicle* vehicle, BankAccount* sellerBankAc
         return -1;
     }
 
+    if (std::find(vehicles.begin(), vehicles.end(), vehicle) != vehicles.end()) {
+        // We already own this vehicle
+        return -1;
+    }
+
     // Try making the transaction
     double vehiclePrice = vehicle->getPrice();
     if (!BankAccount::makeTransaction(bankAccount, sellerBankAccount, vehiclePrice)) {
@@ -69,7 +74,11 @@ int VehicleDealership::sellVehicleTo(Vehicle* vehicle, BankAccount* sellerBankAc
 }
 
 int VehicleDealership::giveVehicle(Vehicle *vehicle) {
-    // MAKE SURE NO DUPLICATES WHENEVER WE'RE BEING SOLD OR GETTING
+    if (std::find(vehicles.begin(), vehicles.end(), vehicle) != vehicles.end()) {
+        // We already own this vehicle
+        return -1;
+    }
+
     vehicles.push_back(vehicle);
     return (int) vehicles.size() - 1;
 }
@@ -134,7 +143,7 @@ void VehicleDealership::saveAsFile() {
 VehicleDealership VehicleDealership::loadFromPath(std::string path) {
     if (!fs::exists(path)) {
         // File needs to exist to read anything
-        throw;
+        throw std::runtime_error(path + " does not exist");
     }
 
     std::ifstream file(path);

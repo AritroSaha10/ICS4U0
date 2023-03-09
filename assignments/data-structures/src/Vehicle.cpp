@@ -220,6 +220,7 @@ void Vehicle::saveAsFile() {
     file.close();
 }
 
+/*
 Vehicle Vehicle::loadFromUUID(std::string uuid) {
     std::string fname = "data/vehicles/" + uuid + ".json";
     if (!fs::exists(fname)) {
@@ -233,6 +234,7 @@ Vehicle Vehicle::loadFromUUID(std::string uuid) {
 
     return Vehicle::deserializeFromJSON(importedJSON);
 }
+ */
 
 std::ostream & operator <<(std::ostream &out, const Vehicle &obj) {
     out << "Vehicle Name: " << obj.name << "\n";

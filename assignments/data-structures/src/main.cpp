@@ -1,3 +1,7 @@
+// !!!!! READ BELOW
+// Ask Ms. Willis if we are allowed to keep classes / methods that we implemented and designed
+// but didn't get the chance to implement in our main code
+
 #include <iostream>
 #include "BankAccount.hpp"
 #include "Person.hpp"
@@ -15,6 +19,7 @@ Person* playerData;
 std::vector<Person*> people;
 std::vector<VehicleDealership*> dealerships;
 
+/*
 void testSerializationBankAccount() {
     BankAccount bankAccount(100, 0, 2500, 2500);
     std::cout << "Saving this bank account: " << bankAccount.serializeToJSON() << "\n";
@@ -24,6 +29,7 @@ void testSerializationBankAccount() {
     BankAccount newBankAccount = BankAccount::loadFromUUID(uuid);
     std::cout << "Loaded JSON: " << bankAccount.serializeToJSON() << "\n";
 }
+ */
 
 Person* generatePersonFromInput() {
     std::string firstName, middleName, lastName;

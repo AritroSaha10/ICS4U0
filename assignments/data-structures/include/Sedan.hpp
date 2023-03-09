@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include "Vehicle.hpp"
-#include "MMI_Features.hpp"
 
 class Sedan : public Vehicle {
 public:
@@ -15,5 +14,4 @@ public:
 private:
     double trunkCapacity;
     double towingMaxLoad;
-    std::vector<MMI_Features> mmiFeatures;
 };
