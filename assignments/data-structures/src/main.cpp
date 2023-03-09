@@ -31,6 +31,10 @@ void testSerializationBankAccount() {
 }
  */
 
+/**
+ * Generate a Person pointer from user input.
+ * @return the generated Person
+ */
 Person* generatePersonFromInput() {
     std::string firstName, middleName, lastName;
     int birthYear, birthMonth, birthDay;
@@ -81,6 +85,10 @@ Person* generatePersonFromInput() {
             new BankAccount( startingBalance, minBalance, withdrawLimit, depositLimit)};
 }
 
+/**
+ * Generate a VehicleDealership pointer from user input.
+ * @return the generated VehicleDealership
+ */
 VehicleDealership* generateDealershipFromInput() {
     std::cout << color::rize("-- Create a vehicle dealership --\n", "White", "Green");
     std::string name;
@@ -104,6 +112,9 @@ VehicleDealership* generateDealershipFromInput() {
     return new VehicleDealership{name, new BankAccount(startingBalance, minBalance, withdrawLimit, depositLimit)};
 }
 
+/**
+ * Create all of the necessary data directories if they don't exist yet.
+ */
 void createDataDirs() {
     // Make data directory if needed
     if (!fs::is_directory("data") || !fs::exists("data")) { // Check if folder exists
@@ -121,6 +132,11 @@ void createDataDirs() {
     }
 }
 
+/**
+ * Print a list of items in order with nice formatting
+ * @tparam T the type used in the vector
+ * @param vec vector to get items from
+ */
 template <class T>
 void printListWithIdx(std::vector<T> &vec) {
     for (int i = 0; i < vec.size(); i++) {
@@ -128,6 +144,11 @@ void printListWithIdx(std::vector<T> &vec) {
     }
 }
 
+/**
+ * Print a list of values of pointers in order with nice formatting
+ * @tparam T the type used in the vector
+ * @param vec vector to get pointers from
+ */
 template <class T>
 void printPointerValsWithIdx(std::vector<T*> &vec) {
     for (int i = 0; i < vec.size(); i++) {
@@ -135,6 +156,9 @@ void printPointerValsWithIdx(std::vector<T*> &vec) {
     }
 }
 
+/**
+ * Using user input, switch the current pointer held in playerData, given the choice of all players.
+ */
 void switchCurrentPlayerAccount() {
     std::cout << color::rize("List of preloaded people:\n", "Green");
     printPointerValsWithIdx<Person>(people);
@@ -161,6 +185,9 @@ void switchCurrentPlayerAccount() {
     std::cout << "Your info: " << *playerData << "\n";
 }
 
+/**
+ * Serialized and save all the Person and VehicleDealership data in data/
+ */
 void saveAllData() {
     for (auto person : people) {
         person->saveAsFile();
