@@ -26,6 +26,7 @@ json Sedan::serializeToJSON() {
     return vehicleSerialized;
 }
 
+/*
 Sedan Sedan::deserializeFromJSON(const json &data) {
     // Ensure that all keys are there
     std::vector<std::string> requiredKeys = {"uuid", "name", "price", "wheels", "doors", "seats",
@@ -42,6 +43,7 @@ Sedan Sedan::deserializeFromJSON(const json &data) {
             data["manufacturer"].get<std::string>(), data["mileage"].get<double>(), data["horsepower"].get<double>(),
             data["maxSpeed"].get<double>(), data["trunkCapacity"].get<double>(), data["towingMaxLoad"].get<double>(), data["color"].get<std::string>()};
 }
+ */
 
 void Sedan::saveAsFile() {
     json serializedJSON = serializeToJSON();
@@ -62,6 +64,7 @@ void Sedan::saveAsFile() {
     file.close();
 }
 
+/*
 Sedan Sedan::loadFromUUID(std::string uuid) {
     std::string fname = "data/bank_accounts/" + uuid + ".json";
     if (!fs::exists(fname)) {
@@ -75,3 +78,4 @@ Sedan Sedan::loadFromUUID(std::string uuid) {
 
     return Sedan::deserializeFromJSON(importedJSON);
 }
+ */

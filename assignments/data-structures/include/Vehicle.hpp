@@ -128,7 +128,8 @@ public:
      * @throws runtime_error if required key does not exist
      */
     static Vehicle deserializeFromJSON(const json &data);
-    /**
+
+    virtual /**
      * Save the data in the instance as a JSON file in its expected location.
      * The filename of the saved file is the UUID.
      */

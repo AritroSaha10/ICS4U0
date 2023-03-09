@@ -65,24 +65,24 @@ class VehicleDealership {
          */
         int giveVehicle(Vehicle* vehicle);
 
-    /**
-     * Serialize all the data in the class into JSON.
-     * @return serialized JSON data of the class
-     */
+        /**
+         * Serialize all the data in the class into JSON.
+         * @return serialized JSON data of the class
+         */
         json serializeToJSON();
 
-    /**
-     * Deserialize all the data from a JSON file into an instance of VehicleDealership.
-     * @param data the JSON data to deserialize
-     * @return a new VehicleDealership instance made using the JSON data.
-     * @throws runtime_error if required key does not exist
-     */
+        /**
+         * Deserialize all the data from a JSON file into an instance of VehicleDealership.
+         * @param data the JSON data to deserialize
+         * @return a new VehicleDealership instance made using the JSON data.
+         * @throws runtime_error if required key does not exist
+         */
         static VehicleDealership deserializeFromJSON(const json &data);
 
-    /**
-     * Save the data in the instance as a JSON file in its expected location.
-     * The filename of the saved file is the UUID.
-     */
+        /**
+         * Save the data in the instance as a JSON file in its expected location.
+         * The filename of the saved file is the UUID.
+         */
         void saveAsFile();
 
         /**

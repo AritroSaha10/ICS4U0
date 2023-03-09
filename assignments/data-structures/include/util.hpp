@@ -5,10 +5,19 @@
 #include <iomanip>
 #include "BankAccount.hpp"
 
+/**
+ * Generates a UUIDv4.
+ * @return a UUIDv4
+ */
 extern std::string generate_uuid_v4();
+/*
 extern void save_bank_account(BankAccount* bankAccount);
 extern BankAccount load_bank_account(const std::string& uuid);
+*/
 
+/**
+ * A class that is used for formatting numbers properly using commas
+ */
 class CommaNumPunct : public std::numpunct<char>
 {
 protected:
@@ -23,6 +32,12 @@ protected:
     }
 };
 
+/**
+ * Formats a number to have commas every 3 digits for readability
+ * @tparam T the type of the value that should be formatted with commas (generally only number types)
+ * @param value the value to format
+ * @return The formatted value with commas
+ */
 template<class T>
 std::string FormatWithCommas(T value)
 {
