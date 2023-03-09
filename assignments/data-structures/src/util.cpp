@@ -1,7 +1,6 @@
 #include "util.hpp"
-#include "nlohmann/json.hpp"
-#include <filesystem>
-#include <fstream>
+#include <iomanip>
+#include <locale>
 
 namespace fs = std::filesystem;
 
@@ -38,35 +37,3 @@ std::string generate_uuid_v4() {
     return ss.str();
 }
 
-void save_bank_account(BankAccount* bankAccount) {
-    json serializedJSON = bankAccount->serializeToJSON();
-
-    // Make data directory if needed
-    if (!fs::is_directory("data") || !fs::exists("data")) { // Check if folder exists
-        fs::create_directory("data");
-    }
-
-    // Make bank accounts directory if needed
-    if (!fs::is_directory("data/bank_accounts") || !fs::exists("data/bank_accounts")) {
-        fs::create_directory("data/bank_accounts");
-    }
-
-    // Write data to file
-    std::ofstream file("data/bank_accounts/" + bankAccount->getUUID() + ".json");
-    file << std::setw(4) << serializedJSON << std::endl;
-    file.close();
-}
-
-BankAccount load_bank_account(const std::string& uuid) {
-    std::string fname = "data/bank_accounts/" + uuid + ".json";
-    if (!fs::exists(fname)) {
-        // File needs to exist to read anything
-        throw;
-    }
-
-    std::ifstream file(fname);
-    json importedJSON;
-    file >> importedJSON;
-
-    return BankAccount::deserializeFromJSON(importedJSON);
-}

@@ -6,11 +6,12 @@
 
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 
 namespace fs = std::filesystem;
 using namespace std::chrono;
 
-Person::Person(std::string firstName, std::string middleName, std::string lastName, int birthTimestamp, double height,
+Person::Person(std::string firstName, std::string middleName, std::string lastName, int64_t birthTimestamp, double height,
                BankAccount *bankAccount) {
     this->firstName = firstName;
     this->middleName = middleName;
@@ -24,7 +25,7 @@ Person::Person(std::string firstName, std::string middleName, std::string lastNa
     this->uuid = generate_uuid_v4();
 }
 
-Person::Person(std::string firstName, std::string middleName, std::string lastName, int birthTimestamp, double height,
+Person::Person(std::string firstName, std::string middleName, std::string lastName, int64_t birthTimestamp, double height,
                BankAccount *bankAccount, std::string uuid) {
     this->firstName = firstName;
     this->middleName = middleName;
@@ -73,7 +74,7 @@ bool Person::setLastName(std::string newName) {
     return true;
 }
 
-int Person::getBirthTimestamp() const {
+int64_t Person::getBirthTimestamp() const {
     return birthTimestamp;
 }
 
@@ -95,6 +96,7 @@ double Person::getAge() const {
     return ageYears;
 }
 
+/*
 bool Person::addBankAccount(BankAccount *account) {
     if (bankAccount != nullptr) {
         // Bank account already exists, don't allow overwriting
@@ -111,14 +113,13 @@ bool Person::removeBankAccount() {
         return false;
     }
 
-    /*
     // Bank account shouldn't be used by anyone else
     delete bankAccount;
     bankAccount = nullptr;
-     */
 
     return true;
 }
+*/
 
 json Person::serializeToJSON() {
     json serialized = {};
@@ -144,7 +145,7 @@ Person Person::deserializeFromJSON(const json &data) {
                                              "bankAccount", "vehicles"};
     for (const std::string &key: requiredKeys) {
         if (!data.contains(key)) {
-            throw;
+            throw std::runtime_error(key + " does not exist in JSON");
         }
     }
 
@@ -182,20 +183,30 @@ void Person::saveAsFile() {
     file.close();
 }
 
-Person Person::loadFromUUID(std::string uuid) {
-    std::string fname = "data/people/" + uuid + ".json";
-    if (!fs::exists(fname)) {
+Person Person::loadFromPath(std::string path) {
+    if (!fs::exists(path)) {
         // File needs to exist to read anything
-        throw;
+        throw std::runtime_error(path + " does not exist");
     }
 
-    std::ifstream file(fname);
+    std::ifstream file(path);
     json importedJSON;
     file >> importedJSON;
 
     return Person::deserializeFromJSON(importedJSON);
 }
 
+Person Person::loadFromUUID(std::string uuid) {
+    return Person::loadFromPath("data/people/" + uuid + ".json");
+}
+
 Person::~Person() {
-    removeBankAccount();
+    // removeBankAccount();
+    delete bankAccount;
+    bankAccount = nullptr;
+}
+
+std::ostream & operator <<(std::ostream &out, const Person &obj) {
+    out << obj.firstName << " " << obj.middleName << " " << obj.lastName << " | Age: " << obj.getAge() << " years | Height: " << obj.height << "cm | Balance: $" << obj.bankAccount->getBalance() << " | UUID: " << obj.uuid;
+    return out;
 }
