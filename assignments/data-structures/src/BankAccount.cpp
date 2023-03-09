@@ -160,3 +160,8 @@ BankAccount BankAccount::loadFromUUID(std::string uuid) {
 
     return BankAccount::deserializeFromJSON(importedJSON);
 }
+
+std::ostream & operator <<(std::ostream &out, const BankAccount &obj) {
+    out << "  Balance: $" << FormatWithCommas(obj.balance) << "\n  Minimum balance: $" << FormatWithCommas(obj.minBalance) << "\n  Withdraw limit: $" << FormatWithCommas(obj.withdrawLimit) << "\n  Deposit limit: $" << FormatWithCommas(obj.depositLimit) << "\n";
+    return out;
+}

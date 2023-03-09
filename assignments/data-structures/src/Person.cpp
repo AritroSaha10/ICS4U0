@@ -132,6 +132,7 @@ json Person::serializeToJSON() {
     serialized["birthTimestamp"] = birthTimestamp;
     serialized["height"] = height;
     serialized["bankAccount"] = bankAccount->serializeToJSON();
+    serialized["vehicles"] = json::array();
     for (Vehicle* vehicle : vehicles) {
         serialized["vehicles"].push_back(vehicle->serializeToJSON());
     }
@@ -212,6 +213,6 @@ std::ostream & operator <<(std::ostream &out, const Person &obj) {
         fullName += " " + obj.middleName;
     }
     fullName += " " + obj.lastName;
-    out << fullName << " | Age: " << obj.getAge() << " years | Height: " << obj.height << "cm | Balance: $" << obj.bankAccount->getBalance() << " | UUID: " << obj.uuid;
+    out << fullName << " | Age: " << FormatWithCommas(obj.getAge()) << " years | Height: " << obj.height << "cm | Balance: $" << FormatWithCommas(obj.bankAccount->getBalance()) << " | UUID: " << obj.uuid;
     return out;
 }

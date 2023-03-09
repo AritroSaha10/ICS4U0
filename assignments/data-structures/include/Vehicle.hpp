@@ -28,6 +28,8 @@ public:
     static Vehicle deserializeFromJSON(const json &data);
     void saveAsFile();
     static Vehicle loadFromUUID(std::string uuid);
+
+    friend std::ostream & operator <<(std::ostream &out, const Vehicle &obj);
 protected:
     std::string name;
     double price;

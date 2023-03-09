@@ -233,3 +233,19 @@ Vehicle Vehicle::loadFromUUID(std::string uuid) {
 
     return Vehicle::deserializeFromJSON(importedJSON);
 }
+
+std::ostream & operator <<(std::ostream &out, const Vehicle &obj) {
+    out << "Vehicle Name: " << obj.name << "\n";
+    out << "  Price: $" << FormatWithCommas(obj.price) << "\n";
+    out << "  Wheels: " << obj.wheels << "\n";
+    out << "  Doors: " << obj.doors << "\n";
+    out << "  Seats: " << obj.seats << "\n";
+    out << "  Max passengers: " << obj.maxPassengers << "\n";
+    out << "  Manufacturer: " << obj.manufacturer << "\n";
+    out << "  Mileage: " << obj.mileage << " km" << "\n";
+    out << "  Horsepower: " << obj.horsepower << " hp" << "\n";
+    out << "  Max speed: " << obj.maxSpeed << " km/h" << "\n";
+    out << "  Color: " << obj.color << "\n";
+
+    return out;
+}

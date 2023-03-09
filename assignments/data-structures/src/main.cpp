@@ -11,6 +11,10 @@
 namespace fs = std::filesystem;
 using namespace std::chrono;
 
+Person* playerData;
+std::vector<Person*> people;
+std::vector<VehicleDealership*> dealerships;
+
 void testSerializationBankAccount() {
     BankAccount bankAccount(100, 0, 2500, 2500);
     std::cout << "Saving this bank account: " << bankAccount.serializeToJSON() << "\n";
@@ -32,7 +36,6 @@ Person* generatePersonFromInput() {
     std::cout << "First name: ";
     std::cin >> firstName;
     std::cout << "Middle name: ";
-    // std::cin >> middleName;
     std::getline(std::cin, middleName);
     std::getline(std::cin, middleName);
     std::cout << "Last name: ";
@@ -60,9 +63,9 @@ Person* generatePersonFromInput() {
 
     // Convert birth date to timestamp
     struct tm myTm{};
-    time_t rawtime;
-    time(&rawtime);
-    myTm = *localtime(&rawtime);
+    time_t rawTime;
+    time(&rawTime);
+    myTm = *localtime(&rawTime);
     myTm.tm_year = birthYear - 1900;
     myTm.tm_mon = birthMonth - 1;
     myTm.tm_mday = birthDay;
@@ -70,6 +73,29 @@ Person* generatePersonFromInput() {
 
     return new Person{firstName, middleName, lastName, birthTimestamp, height,
             new BankAccount( startingBalance, minBalance, withdrawLimit, depositLimit)};
+}
+
+VehicleDealership* generateDealershipFromInput() {
+    std::cout << color::rize("-- Create a vehicle dealership --\n", "White", "Green");
+    std::string name;
+    // Bank account details
+    double startingBalance, minBalance, withdrawLimit, depositLimit;
+
+    std::cout << "Name of vehicle dealership: ";
+    std::getline(std::cin, name);
+    std::getline(std::cin, name);
+
+    std::cout << color::rize("- Banking details -\n", "White", "Blue");
+    std::cout << "Starting Balance: ";
+    std::cin >> startingBalance;
+    std::cout << "Minimum balance: ";
+    std::cin >> minBalance;
+    std::cout << "Withdraw limit: ";
+    std::cin >> withdrawLimit;
+    std::cout << "Deposit limit: ";
+    std::cin >> depositLimit;
+
+    return new VehicleDealership{name, new BankAccount(startingBalance, minBalance, withdrawLimit, depositLimit)};
 }
 
 void createDataDirs() {
@@ -103,27 +129,15 @@ void printPointerValsWithIdx(std::vector<T*> &vec) {
     }
 }
 
-Person* playerData;
-std::vector<Person*> people;
-std::vector<VehicleDealership*> dealerships;
-
-int main() {
-    std::cout << color::rize("Welcome to the car simulator!\n", "Red", "Default", "Bold");
-
-    // Load in all people
-    createDataDirs();
-    std::string path = "data/people";
-    for (const auto & entry : fs::directory_iterator(path))
-        people.push_back(new Person(Person::loadFromPath(entry.path())));
-
+void switchCurrentPlayerAccount() {
     std::cout << color::rize("List of preloaded people:\n", "Green");
     printPointerValsWithIdx<Person>(people);
 
     std::string ans;
     do {
-        std::cout << "Would you like to import your account (i) or create a new one (c)? ";
+        std::cout << "Would you like to import your account if any exist (i), or create a new one (c)? ";
         std::cin >> ans;
-    } while (std::cin.fail() || !(ans == "i" || ans == "c"));
+    } while (std::cin.fail() || !((ans == "i" && !people.empty()) || ans == "c"));
 
     if (ans == "c") {
         people.push_back(generatePersonFromInput());
@@ -131,7 +145,7 @@ int main() {
     } else if (ans == "i") {
         int idx;
         do {
-            std::cout << "\n" << "Enter the index of the account to import:";
+            std::cout << "\n" << "Enter the index of the account to import: ";
             std::cin >> idx;
             idx--;
         } while (std::cin.fail() || idx >= people.size());
@@ -139,27 +153,151 @@ int main() {
     }
 
     std::cout << "Your info: " << *playerData << "\n";
+}
 
+void saveAllData() {
+    for (auto person : people) {
+        person->saveAsFile();
+    }
 
+    for (auto dealership : dealerships) {
+        dealership->saveAsFile();
+    }
 
-    /*
+    std::cout << "Saved all data!\n";
+}
+
+int main() {
+    std::cout << color::rize("Welcome to the Car Simulator!\n", "Red", "Default", "Bold");
+
+    // Load in all people
+    createDataDirs();
+    std::string peopleDataPath = "data/people";
+    for (const auto & entry : fs::directory_iterator(peopleDataPath)) {
+        std::cout << entry.path().string() << "\n";
+        people.push_back(new Person(Person::loadFromPath(entry.path().string())));
+    }
+    // Load in all dealerships
+    std::string dealershipsDataPath = "data/dealership";
+    for (const auto & entry : fs::directory_iterator(dealershipsDataPath))
+        dealerships.push_back(new VehicleDealership(VehicleDealership::loadFromPath(entry.path().string())));
+
+    switchCurrentPlayerAccount();
+
     while (true) {
         int choice = -1;
 
-        std::cout << "What would you like to do?";
-        std::cout << "  1: Create person\n";
-        std::cout << "  0: Quit\n";
+        std::cout << "What would you like to do?\n";
+        std::cout << "-- User actions --\n";
+        std::cout << "  1: Switch current user account\n";
+        std::cout << "  2: View your own info\n";
+        std::cout << "  3: View info about your bank account\n";
+        std::cout << "  4: View your own vehicles\n";
+        std::cout << "  5: Sell your car to a dealership\n";
+        std::cout << "-- Dealership actions --\n";
+        std::cout << "  10: View all dealerships\n";
+        std::cout << "  11: View a dealership's info\n";
+        std::cout << "  12: View a dealership's cars\n";
+        std::cout << "  13: Buy a dealership's car\n";
+        std::cout << "-- System actions --\n";
+        std::cout << "  -2: Delete user account data\n";
+        std::cout << "  -5: Create vehicle dealership\n";
+        std::cout << "  -6: Delete vehicle dealership\n";
+        std::cout << "  -10: Save\n";
+        std::cout << "  -100: Quit\n";
         std::cout << "Choice: ";
+
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         std::cin >> choice;
 
         switch (choice) {
+            // USER ACTIONS
             case 1: {
-                Person tmp = generatePersonFromInput();
-                people.push_back(tmp);
-                std::cout << "Person generated successfully! Info: " << tmp << "\n";
+                switchCurrentPlayerAccount();
                 break;
             }
-            case 0: {
+            case 2: {
+                // Print user's general info
+                std::cout << "Your current info: " << *playerData << "\n";
+                break;
+            }
+            case 3: {
+                // Print bank account info
+                std::cout << "Your bank account info: \n" << *(playerData->bankAccount) << "\n";
+                break;
+            }
+            case 4: {
+                std::cout << "Your vehicle list: \n";
+                printPointerValsWithIdx<Vehicle>(playerData->vehicles);
+                if (playerData->vehicles.empty()) {
+                    std::cout << "  You have no vehicles :(\n";
+                }
+                break;
+            }
+            case 5: {
+                std::cout << "NOT IMPLEMENTED YET\n";
+                break;
+            }
+
+            // DEALERSHIP ACTIONS
+            case 10: {
+                std::cout << "List of all dealerships: \n";
+                for (int i = 0; i < dealerships.size(); i++) {
+                    std::cout << "  " << i + 1 << ". " << dealerships[i]->getName() << "\n";
+                }
+                if (dealerships.empty()) {
+                    std::cout << "  There are no dealerships :(\n";
+                }
+                break;
+            }
+
+            // SYSTEM ACTIONS
+            case -2: {
+                int idx;
+                do {
+                    std::cout << "\n" << "Enter the index of the account to delete:";
+                    std::cin >> idx;
+                    idx--;
+                } while (std::cin.fail() || idx >= people.size());
+
+                if (people[idx] == playerData) {
+                    std::cout << "You cannot delete the user that you are signed in as.\n";
+                    break;
+                }
+
+                people.erase(people.begin() + idx);
+
+                std::cout << "Successfully deleted account data.\n";
+                break;
+            }
+            case -5: {
+                dealerships.push_back(generateDealershipFromInput());
+                std::cout << "Successfully created a dealership!\n";
+                break;
+            }
+            case -6: {
+                if (dealerships.empty()) {
+                    std::cout << "There are no dealerships to delete.\n";
+                    break;
+                }
+
+                int idx;
+                do {
+                    std::cout << "\n" << "Enter the index of the dealership to delete:";
+                    std::cin >> idx;
+                    idx--;
+                } while (std::cin.fail() || idx >= dealerships.size());
+
+                dealerships.erase(dealerships.begin() + idx);
+
+                std::cout << "Successfully deleted dealership data.\n";
+                break;
+            }
+            case -10: {
+                saveAllData();
+                break;
+            }
+            case -100: {
                 std::cout << "Thank you for using the program!\n";
                 return 0;
             }
@@ -169,9 +307,8 @@ int main() {
             }
         }
 
-        std::cout << "\n\n";
+        std::cout << "\n";
     }
-     */
 
     /*
     // testSerializationBankAccount();

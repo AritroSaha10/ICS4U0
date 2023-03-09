@@ -25,6 +25,10 @@ VehicleDealership::VehicleDealership(std::string name, BankAccount *account, std
     this->uuid = uuid;
 }
 
+std::string VehicleDealership::getName() const {
+    return name;
+}
+
 std::vector<Vehicle*> VehicleDealership::getVehicles() {
     return vehicles;
 }
@@ -127,16 +131,19 @@ void VehicleDealership::saveAsFile() {
     file.close();
 }
 
-VehicleDealership VehicleDealership::loadFromUUID(std::string uuid) {
-    std::string fname = "data/vehicle-dealership/" + uuid + ".json";
-    if (!fs::exists(fname)) {
+VehicleDealership VehicleDealership::loadFromPath(std::string path) {
+    if (!fs::exists(path)) {
         // File needs to exist to read anything
         throw;
     }
 
-    std::ifstream file(fname);
+    std::ifstream file(path);
     json importedJSON;
     file >> importedJSON;
 
     return VehicleDealership::deserializeFromJSON(importedJSON);
+}
+
+VehicleDealership VehicleDealership::loadFromUUID(std::string uuid) {
+    return VehicleDealership::loadFromPath("data/dealership/" + uuid + ".json");
 }

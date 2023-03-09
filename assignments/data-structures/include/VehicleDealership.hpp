@@ -15,6 +15,8 @@ class VehicleDealership {
     public:
         VehicleDealership(std::string name, BankAccount *account);
         VehicleDealership(std::string name, BankAccount *account, std::string uuid);
+
+        std::string getName() const;
         std::vector<Vehicle*> getVehicles();
         Vehicle* buyVehicleFrom(int idx, BankAccount* buyerBankAccount);
         int sellVehicleTo(Vehicle* vehicle, BankAccount* sellerBankAccount);
@@ -24,6 +26,7 @@ class VehicleDealership {
         static VehicleDealership deserializeFromJSON(const json &data);
         void saveAsFile();
         static VehicleDealership loadFromUUID(std::string uuid);
+        static VehicleDealership loadFromPath(std::string path);
 
         std::vector<Vehicle*> vehicles;
     private:

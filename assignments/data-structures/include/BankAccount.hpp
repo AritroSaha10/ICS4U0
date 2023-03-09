@@ -21,6 +21,8 @@ class BankAccount {
         static BankAccount deserializeFromJSON(const json &data);
         void saveAsFile();
         static BankAccount loadFromUUID(std::string uuid);
+
+        friend std::ostream & operator <<(std::ostream &out, const BankAccount &obj);
     private:
         double balance;
         double minBalance;
