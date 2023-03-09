@@ -32,7 +32,9 @@ Person* generatePersonFromInput() {
     std::cout << "First name: ";
     std::cin >> firstName;
     std::cout << "Middle name: ";
-    std::cin >> middleName;
+    // std::cin >> middleName;
+    std::getline(std::cin, middleName);
+    std::getline(std::cin, middleName);
     std::cout << "Last name: ";
     std::cin >> lastName;
 
@@ -57,14 +59,14 @@ Person* generatePersonFromInput() {
     std::cin >> depositLimit;
 
     // Convert birth date to timestamp
-    struct tm tm{};
+    struct tm myTm{};
     time_t rawtime;
     time(&rawtime);
-    tm = *localtime(&rawtime);
-    tm.tm_year = birthYear - 1900;
-    tm.tm_mon = birthMonth - 1;
-    tm.tm_mday = birthDay;
-    int64_t birthTimestamp = mktime(&tm);
+    myTm = *localtime(&rawtime);
+    myTm.tm_year = birthYear - 1900;
+    myTm.tm_mon = birthMonth - 1;
+    myTm.tm_mday = birthDay;
+    int64_t birthTimestamp = mktime(&myTm);
 
     return new Person{firstName, middleName, lastName, birthTimestamp, height,
             new BankAccount( startingBalance, minBalance, withdrawLimit, depositLimit)};
@@ -117,8 +119,6 @@ int main() {
     std::cout << color::rize("List of preloaded people:\n", "Green");
     printPointerValsWithIdx<Person>(people);
 
-
-
     std::string ans;
     do {
         std::cout << "Would you like to import your account (i) or create a new one (c)? ";
@@ -127,7 +127,7 @@ int main() {
 
     if (ans == "c") {
         people.push_back(generatePersonFromInput());
-        playerData = people[0];
+        playerData = people[people.size() - 1];
     } else if (ans == "i") {
         int idx;
         do {
@@ -139,6 +139,8 @@ int main() {
     }
 
     std::cout << "Your info: " << *playerData << "\n";
+
+
 
     /*
     while (true) {

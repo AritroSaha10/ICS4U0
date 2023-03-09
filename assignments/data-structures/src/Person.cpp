@@ -89,9 +89,9 @@ bool Person::changeHeight(double delta) {
 }
 
 double Person::getAge() const {
-    int64_t currTimeSeconds = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
+    int64_t currTimeSeconds = std::time(nullptr);
     int64_t ageSeconds = currTimeSeconds - birthTimestamp;
-    double ageYears = ageSeconds / 60.0 / 60.0 / 24.0 / 365.0;
+    double ageYears = (double) ageSeconds / 60.0 / 60.0 / 24.0 / 365.0;
 
     return ageYears;
 }
@@ -207,6 +207,11 @@ Person::~Person() {
 }
 
 std::ostream & operator <<(std::ostream &out, const Person &obj) {
-    out << obj.firstName << " " << obj.middleName << " " << obj.lastName << " | Age: " << obj.getAge() << " years | Height: " << obj.height << "cm | Balance: $" << obj.bankAccount->getBalance() << " | UUID: " << obj.uuid;
+    std::string fullName = obj.firstName;
+    if (!obj.middleName.empty()) {
+        fullName += " " + obj.middleName;
+    }
+    fullName += " " + obj.lastName;
+    out << fullName << " | Age: " << obj.getAge() << " years | Height: " << obj.height << "cm | Balance: $" << obj.bankAccount->getBalance() << " | UUID: " << obj.uuid;
     return out;
 }
