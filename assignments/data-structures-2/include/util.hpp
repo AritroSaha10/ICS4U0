@@ -80,6 +80,8 @@ template<class T> T promptWithValidation(const std::string& prompt, std::functio
     do {
         failed = false;
         std::cout << prompt;
+        std::cin.clear();
+        std::cin.sync();
         std::cin >> inp;
 
         // Error in converting input to the type, clear the buffer and try again next time

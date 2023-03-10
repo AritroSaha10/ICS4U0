@@ -49,7 +49,7 @@ void printPointerValsWithIdx(std::vector<T*> &vec) {
 Person* generatePersonFromInput() {
     // Person-specific details
     auto firstName = promptFullLineWithValidation("First name: ", [](const std::string& str){ return !str.empty(); });
-    auto middleName = promptFullLineWithValidation("Middle name: ", [](const std::string& str){ return true; });
+    auto middleName = promptFullLineWithValidation("Middle name: ", [](const std::string&){ return true; });
     auto lastName = promptFullLineWithValidation("Last name: ", [](const std::string& str){ return !str.empty(); });
 
     auto birthYear = promptWithValidation<int>("Birth year: ", [](int x){ return x >= 1900; });
@@ -170,8 +170,11 @@ void switchCurrentPlayerAccount() {
     // Print out header for this section
     std::cout << color::rize("List of preloaded people:\n", "Green");
     printPointerValsWithIdx<Person>(people);
+    if (people.empty()) {
+        std::cout << "  No people profiles could be loaded in :( If you didn't expect this, check the path of your data files (should be data/people)\n";
+    }
 
-    auto ans = promptFullLineWithValidation("Would you like to import your account if any exist (i), or create a new one (c)? ", [](const std::string &str){ return (str == "i" && !people.empty()) || str == "c"; });
+    auto ans = promptFullLineWithValidation("Would you like to import your account (i, will error if none are imported), or create a new one (c)? ", [](const std::string &str){ return (str == "i" && !people.empty()) || str == "c"; });
     if (ans == "c") {
         // Create a new person and assign them as the current player
         people.push_back(generatePersonFromInput());
@@ -204,6 +207,18 @@ void saveAllData() {
 
 int main() {
     // Header to start the program off
+    std::cout << color::rize(R"(
+   _____           _____ _
+  / ____|         / ____(_)
+ | |     __ _ _ _| (___  _ _ __ ___
+ | |    / _` | '__\___ \| | '_ ` _ \
+ | |___| (_| | |  ____) | | | | | | |
+  \_____\__,_|_| |_____/|_|_| |_| |_|
+)",
+    "Orange",
+    "Default",
+    "Bold");
+
     std::cout << color::rize("Welcome to the Car Simulator!\n", "Red", "Default", "Bold");
 
     // Load in all people
@@ -242,7 +257,7 @@ int main() {
         std::cout << "  -10: Save\n";
         std::cout << "  -100: Quit\n";
 
-        int choice = promptWithValidation<int>("Choice: ", [](int x){ return true; });
+        int choice = promptWithValidation<int>("Choice: ", [](int){ return true; });
         switch (choice) {
             // USER ACTIONS
             case 1: {
@@ -408,7 +423,7 @@ int main() {
                 for (int i = 0; i < dealerships[dealershipIdx]->vehicles.size(); i++) {
                     std::cout << i + 1 << ": " << *dealerships[dealershipIdx]->vehicles[i] << "\n";
                 }
-                if (dealerships.empty()) {
+                if (dealerships[dealershipIdx]->vehicles.empty()) {
                     std::cout << "  There are no vehicles :(\n";
                     break;
                 }
@@ -536,7 +551,7 @@ int main() {
         std::getline(std::cin, tmp);
          */
 
-        promptFullLineWithValidation("\nPress enter to continue...", [](const std::string& str){ return true; });
+        promptFullLineWithValidation("\nPress enter to continue...", [](const std::string&){ return true; });
 
         /*
         std::cin.clear();
