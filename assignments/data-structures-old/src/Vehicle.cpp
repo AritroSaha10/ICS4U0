@@ -1,8 +1,9 @@
+#include "Vehicle.hpp"
+// #include <uuid_v4_old/uuid_v4_old.h>
 #include <algorithm>
+#include "util.hpp"
 #include <filesystem>
 #include <fstream>
-#include "Vehicle.hpp"
-#include "util.hpp"
 
 namespace fs = std::filesystem;
 
@@ -22,6 +23,8 @@ Vehicle::Vehicle(std::string name, double price, int wheels, int doors, int seat
     this->driver = nullptr;
     this->started = false;
 
+    // UUIDv4::UUIDGenerator<std::mt19937_64> uuidGenerator;
+    // this->uuid = uuidGenerator.getUUID().str();
     this->uuid = generate_uuid_v4();
 }
 
@@ -46,8 +49,8 @@ bool Vehicle::stop() {
 }
 
 bool Vehicle::drive(double distance) {
+    // Prevent driving during prohibited conditions
     if (!started || distance <= 0) {
-        // Don't drive if it's not started, or you're trying to drive a <=0 distance
         return false;
     }
 
@@ -56,8 +59,8 @@ bool Vehicle::drive(double distance) {
 }
 
 bool Vehicle::addDriver(Person *driver) {
-    if (this->driver != nullptr || driver == nullptr) {
-        // Don't overwrite the driver if one exists, or replace with no driver (removeDriver should be used)
+    if (this->driver != nullptr) {
+        // Don't overwrite the driver if there already is one
         return false;
     }
 
@@ -75,9 +78,43 @@ bool Vehicle::removeDriver() {
     return true;
 }
 
+bool Vehicle::addPassenger(Person *passenger) {
+    if (passengers.size() == maxPassengers) {
+        return false;
+    }
+
+    if (std::find(passengers.begin(), passengers.end(), passenger) != passengers.end()) {
+        // Don't allow the same person to join as a passenger twice
+        return false;
+    }
+
+    passengers.push_back(passenger);
+    return true;
+}
+
+bool Vehicle::removePassenger(Person *passenger) {
+    auto passengerPos = std::find(passengers.begin(), passengers.end(), passenger);
+    if (passengerPos != passengers.end()) {
+        // No such passenger, cannot remove
+        return false;
+    }
+
+    passengers.erase(passengerPos);
+    return true;
+}
+
+bool Vehicle::removePassenger(int idx) {
+    if (idx > passengers.size() - 1) {
+        // Out of bounds
+        return false;
+    }
+
+    passengers.erase(passengers.begin() + idx);
+    return true;
+}
+
 bool Vehicle::changeColor(const std::string &newColor) {
     if (newColor.empty() || color == newColor) {
-        // Don't change if it's empty or the same
         return false;
     }
 
@@ -87,7 +124,6 @@ bool Vehicle::changeColor(const std::string &newColor) {
 
 bool Vehicle::changePrice(double newPrice) {
     if (newPrice <= 0) {
-        // Can't have a negative price
         return false;
     }
 
@@ -99,15 +135,15 @@ double Vehicle::getMaxSpeed() const {
     return maxSpeed;
 }
 
-int Vehicle::getWheels() const {
+double Vehicle::getWheels() const {
     return wheels;
 }
 
-int Vehicle::getDoors() const {
+double Vehicle::getDoors() const {
     return doors;
 }
 
-int Vehicle::getSeats() const {
+double Vehicle::getSeats() const {
     return seats;
 }
 
@@ -127,7 +163,6 @@ json Vehicle::serializeToJSON() {
     json serialized = {};
 
     // Store all important info into JSON object
-    // We don't include the driver pointer since it should never be saved while a person is driving
     serialized["uuid"] = uuid;
     serialized["name"] = name;
     serialized["price"] = price;
@@ -139,7 +174,9 @@ json Vehicle::serializeToJSON() {
     serialized["manufacturer"] = manufacturer;
     serialized["mileage"] = mileage;
     serialized["horsepower"] = horsepower;
-    serialized["started"] = false; // Make sure the car can be started in the future in case if it somehow saves during driving
+    // serialized["driver"] = driver; // Are these seriously necessary? I feel like these don't really need to be saved...
+    // serialized["passengers'] = passengers;
+    serialized["started"] = started;
     serialized["color"] = color;
     serialized["uuid"] = uuid;
 
@@ -183,10 +220,25 @@ void Vehicle::saveAsFile() {
     file.close();
 }
 
-std::ostream &operator<<(std::ostream &out, const Vehicle &obj) {
+/*
+Vehicle Vehicle::loadFromUUID(std::string uuid) {
+    std::string fname = "data/vehicles/" + uuid + ".json";
+    if (!fs::exists(fname)) {
+        // File needs to exist to read anything
+        throw;
+    }
+
+    std::ifstream file(fname);
+    json importedJSON;
+    file >> importedJSON;
+
+    return Vehicle::deserializeFromJSON(importedJSON);
+}
+ */
+
+std::ostream & operator <<(std::ostream &out, const Vehicle &obj) {
     out << "Vehicle Name: " << obj.name << "\n";
-    out << "  Price: $" << formatWithCommas(obj.price) << "\n";
-    out << "  Started?: " << (obj.started ? "Yes" : "No") << "\n";
+    out << "  Price: $" << FormatWithCommas(obj.price) << "\n";
     out << "  Wheels: " << obj.wheels << "\n";
     out << "  Doors: " << obj.doors << "\n";
     out << "  Seats: " << obj.seats << "\n";

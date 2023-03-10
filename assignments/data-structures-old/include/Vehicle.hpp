@@ -1,5 +1,4 @@
 #pragma once
-
 #include <vector>
 #include "Person.hpp"
 
@@ -24,103 +23,104 @@ public:
      * @param maxSpeed max speed of Vehicle in km/h
      * @param color color of Vehicle
      */
-    Vehicle(std::string name, double price, int wheels, int doors, int seats, int maxPassengers,
-            std::string manufacturer, double mileage, double horsepower, double maxSpeed, std::string color);
-
+    Vehicle(std::string name, double price, int wheels, int doors, int seats, int maxPassengers, std::string manufacturer, double mileage, double horsepower, double maxSpeed, std::string color);
     /**
      * Start the car if possible
      * @return if the car was started
      */
     bool start();
-
     /**
      * Stop the car if possible
      * @return if the car was stopped
      */
     bool stop();
-
     /**
      * Make the vehicle drive a certain distance
      * @param distance the distance driven, in km
      * @return Whether the drive was successful (distance was non-negative)
      */
     bool drive(double distance);
-
     /**
      * Add a driver to the vehicle
      * @param driver pointer to driver
      * @return Whether a driver was successfully added
      */
-    bool addDriver(Person *driver);
-
+    bool addDriver(Person* driver);
     /**
      * Remove the driver from the vehicle
      * @return Whether the driver was successfully removed
      */
     bool removeDriver();
-
+    /**
+     * Add a **unique** passenger to the vehicle
+     * @param passenger pointer to the new passenger
+     * @return Whether a passenger was successfully added
+     */
+    bool addPassenger(Person* passenger);
+    /**
+     * Remove a passenger from the vehicle if they are in it
+     * @param passenger pointer to passenger that should be removed
+     * @return Whether the passenger was successfully removed
+     */
+    bool removePassenger(Person* passenger);
+    /**
+     * Remove a passenger from the vehicle
+     * @param idx index of the passenger from the list
+     * @return Whether the passenger was successfully removed
+     */
+    bool removePassenger(int idx);
     /**
      * Change the color of the vehicle
      * @param newColor the new color
      * @return Whether the color was successfully changed
      */
-    bool changeColor(const std::string &newColor);
-
+    bool changeColor(const std::string& newColor);
     /**
      * Change the price of the vehicle
      * @param newPrice the new price
      * @return Whether the price was successfully changed
      */
     bool changePrice(double newPrice);
-
     /**
      * Get the max speed of the vehicle in km/h
      * @return max speed of vehicle in km/h
      */
     double getMaxSpeed() const;
-
     /**
      * Get the number of wheels that the vehicle has
      * @return # of wheels that vehicle has
      */
-    int getWheels() const;
-
+    double getWheels() const;
     /**
      * Get the number of doors that the vehicle has
      * @return # of doors that vehicle has
      */
-    int getDoors() const;
-
+    double getDoors() const;
     /**
      * Get the number of seats that the vehicle has
      * @return # of seats that vehicle has
      */
-    int getSeats() const;
-
+    double getSeats() const;
     /**
      * Get the horsepower available from the vehicle's engine
      * @return the amount of horsepower of the vehicle
      */
     double getHorsepower() const;
-
     /**
      * Get the price of the vehicle in dollars
      * @return price of the vehicle in dollars
      */
     double getPrice() const;
-
     /**
      * Get the name of the vehicle
      * @return name of the vehicle
      */
     std::string getName() const;
-
     /**
      * Serialize all the data in the class into JSON.
      * @return serialized JSON data of the class
      */
     virtual json serializeToJSON();
-
     /**
      * Deserialize all the data from a JSON file into an instance of Vehicle.
      * @param data the JSON data to deserialize
@@ -129,11 +129,12 @@ public:
      */
     static Vehicle deserializeFromJSON(const json &data);
 
-    /**
+    virtual /**
      * Save the data in the instance as a JSON file in its expected location.
      * The filename of the saved file is the UUID.
      */
     void saveAsFile();
+    // static Vehicle loadFromUUID(std::string uuid);
 
     /**
      * Convert the data in the instance into a string
@@ -141,8 +142,7 @@ public:
      * @param obj reference to Vehicle to get data from
      * @return the manipulated output stream with the Vehicle data
      */
-    friend std::ostream &operator<<(std::ostream &out, const Vehicle &obj);
-
+    friend std::ostream & operator <<(std::ostream &out, const Vehicle &obj);
 protected:
     std::string name;
     double price;
@@ -154,7 +154,8 @@ protected:
     std::string manufacturer;
     double mileage;
     double horsepower;
-    Person *driver;
+    Person* driver;
+    std::vector<Person*> passengers;
     bool started;
     std::string color;
     std::string uuid;

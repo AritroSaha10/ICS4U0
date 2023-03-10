@@ -11,8 +11,7 @@
 namespace fs = std::filesystem;
 using namespace std::chrono;
 
-Person::Person(std::string firstName, std::string middleName, std::string lastName, int64_t birthTimestamp,
-               double height,
+Person::Person(std::string firstName, std::string middleName, std::string lastName, int64_t birthTimestamp, double height,
                BankAccount *bankAccount) {
     this->firstName = firstName;
     this->middleName = middleName;
@@ -21,11 +20,12 @@ Person::Person(std::string firstName, std::string middleName, std::string lastNa
     this->height = height;
     this->bankAccount = bankAccount;
 
+    // UUIDv4::UUIDGenerator<std::mt19937_64> uuidGenerator;
+    // this->uuid = uuidGenerator.getUUID().str();
     this->uuid = generate_uuid_v4();
 }
 
-Person::Person(std::string firstName, std::string middleName, std::string lastName, int64_t birthTimestamp,
-               double height,
+Person::Person(std::string firstName, std::string middleName, std::string lastName, int64_t birthTimestamp, double height,
                BankAccount *bankAccount, std::string uuid) {
     this->firstName = firstName;
     this->middleName = middleName;
@@ -96,6 +96,31 @@ double Person::getAge() const {
     return ageYears;
 }
 
+/*
+bool Person::addBankAccount(BankAccount *account) {
+    if (bankAccount != nullptr) {
+        // Bank account already exists, don't allow overwriting
+        return false;
+    }
+
+    bankAccount = account;
+    return true;
+}
+
+bool Person::removeBankAccount() {
+    if (bankAccount == nullptr) {
+        // Bank account doesn't exist, can't remove nothing
+        return false;
+    }
+
+    // Bank account shouldn't be used by anyone else
+    delete bankAccount;
+    bankAccount = nullptr;
+
+    return true;
+}
+*/
+
 json Person::serializeToJSON() {
     json serialized = {};
 
@@ -108,7 +133,7 @@ json Person::serializeToJSON() {
     serialized["height"] = height;
     serialized["bankAccount"] = bankAccount->serializeToJSON();
     serialized["vehicles"] = json::array();
-    for (Vehicle *vehicle: vehicles) {
+    for (Vehicle* vehicle : vehicles) {
         serialized["vehicles"].push_back(vehicle->serializeToJSON());
     }
 
@@ -126,14 +151,13 @@ Person Person::deserializeFromJSON(const json &data) {
     }
 
     // Make a BankAccount from the given info
-    auto *tmpAccount = new BankAccount(BankAccount::deserializeFromJSON(data["bankAccount"]));
+    auto* tmpAccount = new BankAccount(BankAccount::deserializeFromJSON(data["bankAccount"]));
 
     Person tmpPerson{data["firstName"].get<std::string>(), data["middleName"].get<std::string>(),
-                     data["lastName"].get<std::string>(), data["birthTimestamp"].get<int>(),
-                     data["height"].get<double>(),
+                     data["lastName"].get<std::string>(), data["birthTimestamp"].get<int>(), data["height"].get<double>(),
                      tmpAccount, data["uuid"].get<std::string>()};
 
-    for (const json &vehicleData: data["vehicles"].get<json>()) {
+    for (const json& vehicleData : data["vehicles"].get<json>()) {
         tmpPerson.vehicles.push_back(new Vehicle(Vehicle::deserializeFromJSON(vehicleData)));
     }
 
@@ -178,19 +202,17 @@ Person Person::loadFromUUID(std::string uuid) {
 }
 
 Person::~Person() {
+    // removeBankAccount();
     delete bankAccount;
     bankAccount = nullptr;
 }
 
-std::ostream &operator<<(std::ostream &out, const Person &obj) {
+std::ostream & operator <<(std::ostream &out, const Person &obj) {
     std::string fullName = obj.firstName;
     if (!obj.middleName.empty()) {
         fullName += " " + obj.middleName;
     }
     fullName += " " + obj.lastName;
-
-    out << fullName << " | Age: " << formatWithCommas(obj.getAge()) << " years | Height: " << obj.height
-        << "cm | Balance: $" << formatWithCommas(
-            obj.bankAccount->getBalance()) << " | UUID: " << obj.uuid;
+    out << fullName << " | Age: " << FormatWithCommas(obj.getAge()) << " years | Height: " << obj.height << "cm | Balance: $" << FormatWithCommas(obj.bankAccount->getBalance()) << " | UUID: " << obj.uuid;
     return out;
 }

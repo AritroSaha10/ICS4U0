@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(DataStructures2)
+project(DataStructures)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -20,5 +20,5 @@ file(GLOB all_SRCS
         "${PROJECT_SOURCE_DIR}/src/*.c"
         )
 
-add_executable(DataStructures2 ${all_SRCS})
+add_executable(DataStructures ${all_SRCS} src/util.cpp include/colorize.h)
 # target_link_libraries(DataStructures SHARED)

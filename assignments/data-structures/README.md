@@ -1,5 +1,8 @@
 # ICS4U0 - Data Structures Assignment
-write stuff here lol
+Completes [this assignment](https://github.com/johnfraserss/ICS4U/wiki/Data-Structures)
+
+More info can be seen in the main file
+
 ## Build Instructions
 You can either use cmake, or run this command:
 

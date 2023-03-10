@@ -1,10 +1,10 @@
 #include <cassert>
 #include "BankAccount.hpp"
+// #include "include/uuid_v4/uuid_v4.h.old"
 #include <util.hpp>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <utility>
 
 namespace fs = std::filesystem;
 
@@ -16,6 +16,8 @@ BankAccount::BankAccount(double startingBalance, double minBalance, double withd
     this->withdrawLimit = withdrawLimit;
     this->depositLimit = depositLimit;
 
+    // UUIDv4::UUIDGenerator<std::mt19937_64> uuidGenerator;
+    // this->uuid = uuidGenerator.getUUID().str();
     this->uuid = generate_uuid_v4();
 }
 
@@ -28,7 +30,7 @@ BankAccount::BankAccount(double startingBalance, double minBalance, double withd
     this->withdrawLimit = withdrawLimit;
     this->depositLimit = depositLimit;
 
-    this->uuid = std::move(uuid);
+    this->uuid = uuid;
 }
 
 BankAccount::BankAccount(double withdrawLimit, double depositLimit) {
@@ -37,6 +39,8 @@ BankAccount::BankAccount(double withdrawLimit, double depositLimit) {
     this->withdrawLimit = withdrawLimit;
     this->depositLimit = depositLimit;
 
+    // UUIDv4::UUIDGenerator<std::mt19937_64> uuidGenerator;
+    // this->uuid = uuidGenerator.getUUID().str();
     this->uuid = generate_uuid_v4();
 }
 
@@ -71,7 +75,7 @@ bool BankAccount::deposit(double amount) {
 bool BankAccount::makeTransaction(BankAccount *sender, BankAccount *receiver, double amount) {
     // Confirm transactions are possible
     if (!BankAccount::checkTransaction(sender, receiver, amount)) {
-        std::cout << "Transaction impossible\n";
+        std::cout << "transaction impossible\n";
         return false;
     }
 
@@ -121,6 +125,9 @@ BankAccount BankAccount::deserializeFromJSON(const json &data) {
             data["depositLimit"].get<double>(), data["uuid"].get<std::string>()};
 }
 
+// DON'T DO THIS!!! DON'T SAVE THEM INDIVIDUALLY
+// INSTEAD OF DOING THIS, SAVE THE BANK ACCOUNTS AS A PART OF EITHER THE PERSON OR THE VEHICLE DEALERSHIP
+// IT BECOMES EXPONENTIALLY EASIER TO MANAGE NESTED CLASSES AS IT JUST BECOMES ANOTHER OBJECT
 void BankAccount::saveAsFile() {
     json serializedJSON = serializeToJSON();
 
@@ -140,10 +147,23 @@ void BankAccount::saveAsFile() {
     file.close();
 }
 
-std::ostream &operator<<(std::ostream &out, const BankAccount &obj) {
-    out << "  Balance: $" << formatWithCommas(obj.balance) << "\n  Minimum balance: $" << formatWithCommas(
-            obj.minBalance) << "\n  Withdraw limit: $" << formatWithCommas(
-            obj.withdrawLimit) << "\n  Deposit limit: $" << formatWithCommas(
-            obj.depositLimit) << "\n";
+/*
+BankAccount BankAccount::loadFromUUID(std::string uuid) {
+    std::string fname = "data/bank_accounts/" + uuid + ".json";
+    if (!fs::exists(fname)) {
+        // File needs to exist to read anything
+        throw;
+    }
+
+    std::ifstream file(fname);
+    json importedJSON;
+    file >> importedJSON;
+
+    return BankAccount::deserializeFromJSON(importedJSON);
+}
+ */
+
+std::ostream & operator <<(std::ostream &out, const BankAccount &obj) {
+    out << "  Balance: $" << FormatWithCommas(obj.balance) << "\n  Minimum balance: $" << FormatWithCommas(obj.minBalance) << "\n  Withdraw limit: $" << FormatWithCommas(obj.withdrawLimit) << "\n  Deposit limit: $" << FormatWithCommas(obj.depositLimit) << "\n";
     return out;
 }

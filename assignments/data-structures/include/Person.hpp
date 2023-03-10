@@ -1,4 +1,5 @@
 #pragma once
+
 #include <string>
 #include <vector>
 #include <nlohmann/json.hpp>
@@ -23,7 +24,8 @@ public:
      * @param height height in centimetres
      * @param bankAccount pointer to person's bank account
      */
-    Person(std::string firstName, std::string middleName, std::string lastName, int64_t birthTimestamp, double height, BankAccount* bankAccount);
+    Person(std::string firstName, std::string middleName, std::string lastName, int64_t birthTimestamp, double height,
+           BankAccount *bankAccount);
 
     /**
      * Constructor for Person, which takes in a UUID. Helpful for loading in serialized data.
@@ -35,7 +37,8 @@ public:
      * @param bankAccount pointer to person's bank account
      * @param uuid UUID of the instance
      */
-    Person(std::string firstName, std::string middleName, std::string lastName, int64_t birthTimestamp, double height, BankAccount* bankAccount, std::string uuid);
+    Person(std::string firstName, std::string middleName, std::string lastName, int64_t birthTimestamp, double height,
+           BankAccount *bankAccount, std::string uuid);
 
     /**
      * Get the Person's first name
@@ -131,8 +134,8 @@ public:
      */
     static Person loadFromPath(std::string path);
 
-    std::vector<Vehicle*> vehicles;
-    BankAccount* bankAccount;
+    std::vector<Vehicle *> vehicles;
+    BankAccount *bankAccount;
 
     /**
      * Destructor for the Person.
@@ -145,7 +148,8 @@ public:
      * @param obj Person object to use for data
      * @return Modified output stream with Person data
      */
-    friend std::ostream & operator <<(std::ostream &out, const Person &obj);
+    friend std::ostream &operator<<(std::ostream &out, const Person &obj);
+
     friend class Vehicle;
 
 private:
