@@ -42,9 +42,11 @@ std::string promptFullLineWithValidation(const string& prompt, function<bool(std
     std::string inp;
 
     // Continuously attempt to get valid input until we do
-    getline(cin, inp);
+    // getline(cin, inp);
     do {
         cout << prompt;
+        cin.clear();
+        cin.sync();
         getline(cin, inp);
 
         // Error in converting input to the type, clear the buffer and try again next time

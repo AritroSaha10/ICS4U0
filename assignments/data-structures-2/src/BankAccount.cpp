@@ -125,9 +125,6 @@ BankAccount BankAccount::deserializeFromJSON(const json &data) {
             data["depositLimit"].get<double>(), data["uuid"].get<std::string>()};
 }
 
-// DON'T DO THIS!!! DON'T SAVE THEM INDIVIDUALLY
-// INSTEAD OF DOING THIS, SAVE THE BANK ACCOUNTS AS A PART OF EITHER THE PERSON OR THE VEHICLE DEALERSHIP
-// IT BECOMES EXPONENTIALLY EASIER TO MANAGE NESTED CLASSES AS IT JUST BECOMES ANOTHER OBJECT
 void BankAccount::saveAsFile() {
     json serializedJSON = serializeToJSON();
 

@@ -18,18 +18,6 @@ Person* playerData;
 std::vector<Person*> people;
 std::vector<VehicleDealership*> dealerships;
 
-/*
-void testSerializationBankAccount() {
-    BankAccount bankAccount(100, 0, 2500, 2500);
-    std::cout << "Saving this bank account: " << bankAccount.serializeToJSON() << "\n";
-    std::string uuid = bankAccount.getUUID();
-    bankAccount.saveAsFile();
-
-    BankAccount newBankAccount = BankAccount::loadFromUUID(uuid);
-    std::cout << "Loaded JSON: " << bankAccount.serializeToJSON() << "\n";
-}
- */
-
 /**
  * Print a list of items in order with nice formatting
  * @tparam T the type used in the vector
@@ -59,40 +47,23 @@ void printPointerValsWithIdx(std::vector<T*> &vec) {
  * @return the generated Person
  */
 Person* generatePersonFromInput() {
-    std::string firstName, middleName, lastName;
-    int birthYear, birthMonth, birthDay;
-    double height;
+    // Person-specific details
+    auto firstName = promptFullLineWithValidation("First name: ", [](const std::string& str){ return !str.empty(); });
+    auto middleName = promptFullLineWithValidation("Middle name: ", [](const std::string& str){ return true; });
+    auto lastName = promptFullLineWithValidation("Last name: ", [](const std::string& str){ return !str.empty(); });
+
+    auto birthYear = promptWithValidation<int>("Birth year: ", [](int x){ return x >= 1900; });
+    auto birthMonth = promptWithValidation<int>("Birth month: ", [](int x){ return x >= 1 && x <= 12; });
+    auto birthDay = promptWithValidation<int>("Birth day: ", [](int x){ return x >= 1 && x <= 31; });
+
+    auto height = promptWithValidation<double>("Height (cm): ", [](int x){return x >= 0; });
+
     // Bank account details
-    double startingBalance, minBalance, withdrawLimit, depositLimit;
-
-    std::cout << color::rize("-- Create a person --\n", "White", "Green");
-    std::cout << "First name: ";
-    std::cin >> firstName;
-    std::cout << "Middle name: ";
-    std::getline(std::cin, middleName);
-    std::getline(std::cin, middleName);
-    std::cout << "Last name: ";
-    std::cin >> lastName;
-
-    std::cout << "Birth year: ";
-    std::cin >> birthYear;
-    std::cout << "Birth month: ";
-    std::cin >> birthMonth;
-    std::cout << "Birth day: ";
-    std::cin >> birthDay;
-
-    std::cout << "Height (cm): ";
-    std::cin >> height;
-
     std::cout << color::rize("- Banking details -\n", "White", "Blue");
-    std::cout << "Starting Balance: ";
-    std::cin >> startingBalance;
-    std::cout << "Minimum balance: ";
-    std::cin >> minBalance;
-    std::cout << "Withdraw limit: ";
-    std::cin >> withdrawLimit;
-    std::cout << "Deposit limit: ";
-    std::cin >> depositLimit;
+    auto minBalance = promptWithValidation<double>("Minimum balance: ", [](double x){ return x >= 0; });
+    auto startingBalance = promptWithValidation<double>("Starting balance: ", [&minBalance](double x){ return x >= minBalance; });
+    auto withdrawLimit = promptWithValidation<double>("Withdraw limit: ", [](double x){ return x >= 0; });
+    auto depositLimit = promptWithValidation<double>("Deposit limit: ", [](double x){ return x >= 0; });
 
     // Convert birth date to timestamp
     struct tm myTm{};
@@ -114,24 +85,18 @@ Person* generatePersonFromInput() {
  */
 VehicleDealership* generateDealershipFromInput() {
     std::cout << color::rize("-- Create a vehicle dealership --\n", "White", "Green");
-    std::string name;
+
+    // Dealership-specific details
+    auto name = promptFullLineWithValidation("Name of dealership: ", [](const std::string& str){ return !str.empty(); });
+
     // Bank account details
-    double startingBalance, minBalance, withdrawLimit, depositLimit;
-
-    std::cout << "Name of vehicle dealership: ";
-    std::getline(std::cin, name); // Required to make sure that it captures input with spaces properly
-    std::getline(std::cin, name);
-
     std::cout << color::rize("- Banking details -\n", "White", "Blue");
-    std::cout << "Starting Balance: ";
-    std::cin >> startingBalance;
-    std::cout << "Minimum balance: ";
-    std::cin >> minBalance;
-    std::cout << "Withdraw limit: ";
-    std::cin >> withdrawLimit;
-    std::cout << "Deposit limit: ";
-    std::cin >> depositLimit;
+    auto minBalance = promptWithValidation<double>("Minimum balance: ", [](double x){ return x >= 0; });
+    auto startingBalance = promptWithValidation<double>("Starting balance: ", [&minBalance](double x){ return x >= minBalance; });
+    auto withdrawLimit = promptWithValidation<double>("Withdraw limit: ", [](double x){ return x >= 0; });
+    auto depositLimit = promptWithValidation<double>("Deposit limit: ", [](double x){ return x >= 0; });
 
+    // Generate a new instance of VehicleDealership with this info
     return new VehicleDealership{name, new BankAccount(startingBalance, minBalance, withdrawLimit, depositLimit)};
 }
 
@@ -172,7 +137,6 @@ Vehicle* generateVehicleFromUserInputAndAttach() {
     }
 
     auto idx = promptWithValidation<int>("Enter the index of the dealership to add the vehicle to: ", [](int x){ return x > 0 && x <= dealerships.size(); }) - 1;
-
     dealerships[idx]->giveVehicle(vehicle);
     std::cout << "Successfully generated vehicle for " << dealerships[idx]->getName() << "!\n";
 
@@ -203,25 +167,18 @@ void createDataDirs() {
  * Using user input, switch the current pointer held in playerData, given the choice of all players.
  */
 void switchCurrentPlayerAccount() {
+    // Print out header for this section
     std::cout << color::rize("List of preloaded people:\n", "Green");
     printPointerValsWithIdx<Person>(people);
 
-    std::string ans;
-    do {
-        std::cout << "Would you like to import your account if any exist (i), or create a new one (c)? ";
-        std::cin >> ans;
-    } while (std::cin.fail() || !((ans == "i" && !people.empty()) || ans == "c"));
-
+    auto ans = promptFullLineWithValidation("Would you like to import your account if any exist (i), or create a new one (c)? ", [](const std::string &str){ return (str == "i" && !people.empty()) || str == "c"; });
     if (ans == "c") {
+        // Create a new person and assign them as the current player
         people.push_back(generatePersonFromInput());
         playerData = people[people.size() - 1];
     } else if (ans == "i") {
-        int idx;
-        do {
-            std::cout << "\n" << "Enter the index of the account to import: ";
-            std::cin >> idx;
-            idx--;
-        } while (std::cin.fail() || idx >= people.size() || idx < 0);
+        // Choose an account from the ones given
+        int idx = promptWithValidation<int>("Enter the index of the account to import: ", [](int i){ return i > 0 && i <= people.size(); }) - 1;
         playerData = people[idx];
     }
 
@@ -232,10 +189,12 @@ void switchCurrentPlayerAccount() {
  * Serialized and save all the Person and VehicleDealership data in data/
  */
 void saveAllData() {
+    // Save all data for people
     for (auto person : people) {
         person->saveAsFile();
     }
 
+    // Save all data for dealerships
     for (auto dealership : dealerships) {
         dealership->saveAsFile();
     }
@@ -244,6 +203,7 @@ void saveAllData() {
 }
 
 int main() {
+    // Header to start the program off
     std::cout << color::rize("Welcome to the Car Simulator!\n", "Red", "Default", "Bold");
 
     // Load in all people
@@ -257,12 +217,11 @@ int main() {
     for (const auto & entry : fs::directory_iterator(dealershipsDataPath))
         dealerships.push_back(new VehicleDealership(VehicleDealership::loadFromPath(entry.path().string())));
 
+    // Have the player choose an account / person profile before doing anything
     switchCurrentPlayerAccount();
     std::cout << "\n\n";
 
     while (true) {
-        int choice = -1;
-
         std::cout << "What would you like to do?\n";
         std::cout << "-- User actions --\n";
         std::cout << "  1: Switch current user account\n";
@@ -282,14 +241,12 @@ int main() {
         std::cout << "  -7: Delete vehicle dealership\n";
         std::cout << "  -10: Save\n";
         std::cout << "  -100: Quit\n";
-        std::cout << "Choice: ";
 
-        // std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cin >> choice;
-
+        int choice = promptWithValidation<int>("Choice: ", [](int x){ return true; });
         switch (choice) {
             // USER ACTIONS
             case 1: {
+                // Switch the player profile / account
                 switchCurrentPlayerAccount();
                 break;
             }
@@ -304,6 +261,7 @@ int main() {
                 break;
             }
             case 4: {
+                // Print out a list of the user's vehicles
                 std::cout << "Your vehicle list: \n";
                 printPointerValsWithIdx<Vehicle>(playerData->vehicles);
                 if (playerData->vehicles.empty()) {
@@ -312,59 +270,44 @@ int main() {
                 break;
             }
             case 5: {
+                // Allow the user to sell their car to a dealership if possible
+
+                // Pre-requisite checking before allowing them to sell
                 if (playerData->vehicles.empty()) {
                     std::cout << "You cannot sell your vehicle when you don't have any. Please buy a vehicle and try again.\n";
                     break;
                 }
-
                 if (dealerships.empty()) {
                     std::cout << "You cannot sell your vehicle when no dealerships exist. Please make a dealership and try again.\n";
                     break;
                 }
 
+                // List all the vehicles, specifically their name and price
                 std::cout << "Your vehicles:" << ": \n";
                 for (int i = 0; i < playerData->vehicles.size(); i++) {
                     std::cout << i + 1 << ": " << playerData->vehicles[i]->getName() << ", $" << formatWithCommas(
                             playerData->vehicles[i]->getPrice()) << "\n";
                 }
+                // Get which vehicle the user wants to sell
+                int vehicleIdx = promptWithValidation<int>("Which vehicle would you like to sell? (give index) ", [](int i){ return i > 0 && i <= playerData->vehicles.size(); }) - 1;
 
-                int vehicleIdx;
-                do {
-                    std::cout << "\n" << "Which vehicle would you like to sell? (give index) ";
-                    std::cin >> vehicleIdx;
-                    vehicleIdx--;
-
-                    if (std::cin.fail()) {
-                        std::cin.clear();
-                        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                    }
-                } while (std::cin.fail() || vehicleIdx >= playerData->vehicles.size() || vehicleIdx < 0);
-
+                // List all the dealerships out
                 std::cout << "List of all dealerships: \n";
                 for (int i = 0; i < dealerships.size(); i++) {
                     std::cout << "  " << i + 1 << ". " << dealerships[i]->getName() << "\n";
                 }
+                // Get which dealership the user wants to sell their vehicle to
+                int dealershipIdx = promptWithValidation<int>("Which dealership would you like to sell your vehicle to? (give index) ", [](int i){ return i > 0 && i <= dealerships.size(); }) - 1;
 
-                int dealershipIdx;
-                do {
-                    std::cout << "\n" << "Which dealership would you like to sell your vehicle to? (give index) ";
-                    std::cin >> dealershipIdx;
-                    dealershipIdx--;
-
-                    if (std::cin.fail()) {
-                        std::cin.clear();
-                        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                    }
-                } while (std::cin.fail() || dealershipIdx >= dealerships.size() || dealershipIdx < 0);
-
+                // Attempt to sell the vehicle to the dealership, handle if impossible
                 int soldVehicleIdx = dealerships[dealershipIdx]->sellVehicleTo(playerData->vehicles[vehicleIdx], playerData->bankAccount);
                 if (soldVehicleIdx == -1) {
                     std::cout << "The transaction could not be completed, likely because the dealership doesn't have enough money or due to deposit/withdraw limits on either accounts. Please check these and try again later.\n";
                     break;
                 }
 
+                // Sell was successful, remove the vehicle from the player's list since we don't own it anymore
                 playerData->vehicles.erase(playerData->vehicles.begin() + vehicleIdx);
-
                 std::cout << "The transaction was successful! " << dealerships[dealershipIdx]->getName() << " now owns this vehicle:\n" << *dealerships[dealershipIdx]->vehicles[soldVehicleIdx] << "\n";
 
                 break;
@@ -372,6 +315,7 @@ int main() {
 
             // DEALERSHIP ACTIONS
             case 10: {
+                // Print out the names of all the dealerships
                 std::cout << "List of all dealerships: \n";
                 for (int i = 0; i < dealerships.size(); i++) {
                     std::cout << "  " << i + 1 << ". " << dealerships[i]->getName() << "\n";
@@ -382,12 +326,14 @@ int main() {
                 break;
             }
             case 11: {
+                // Print out info for a specific dealership
                 if (dealerships.empty()) {
                     std::cout << "There are no dealerships to view.\n";
                     break;
                 }
 
-                int idx;
+                int idx = promptWithValidation<int>("Which dealership would like to view more info about? (give index)  ", [](int x){ return x > 0 && x <= dealerships.size(); }) - 1;
+                /*
                 do {
                     std::cout << "\n" << "Which dealership would like to view more info about? (give index) ";
                     std::cin >> idx;
@@ -398,16 +344,21 @@ int main() {
                         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                     }
                 } while (std::cin.fail() || idx >= dealerships.size() || idx < 0);
+                 */
 
                 std::cout << *dealerships[idx] << "\n";
                 break;
             }
             case 12: {
+                // View all of a dealership's vehicles
                 if (dealerships.empty()) {
                     std::cout << "There are no dealerships to view.\n";
                     break;
                 }
 
+                int idx = promptWithValidation<int>("Which dealership's vehicles would you like to view? (give index) ", [](int x){ return x > 0 && x <= dealerships.size(); }) - 1;
+
+                /*
                 int idx;
                 do {
                     std::cout << "\n" << "Which dealership's vehicles would you like to view? (give index) ";
@@ -419,6 +370,7 @@ int main() {
                         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                     }
                 } while (std::cin.fail() || idx >= dealerships.size() || idx < 0);
+                 */
 
                 std::cout << "Vehicles of " << dealerships[idx]->getName() << ": \n";
                 for (int i = 0; i < dealerships[idx]->vehicles.size(); i++) {
@@ -431,11 +383,14 @@ int main() {
                 break;
             }
             case 13: {
+                // Allow the user to buy a vehicle from a dealership
                 if (dealerships.empty()) {
                     std::cout << "There are no dealerships to view.\n";
                     break;
                 }
 
+                int dealershipIdx = promptWithValidation<int>("Which dealership's vehicles would like to buy? (give index) ", [](int x){ return x > 0 && x <= dealerships.size(); }) - 1;
+                /*
                 int dealershipIdx;
                 do {
                     std::cout << "\n" << "Which dealership's vehicles would like to buy? (give index) ";
@@ -447,6 +402,7 @@ int main() {
                         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                     }
                 } while (std::cin.fail() || dealershipIdx >= dealerships.size() || dealershipIdx < 0);
+                 */
 
                 std::cout << "Vehicles of " << dealerships[dealershipIdx]->getName() << ": \n";
                 for (int i = 0; i < dealerships[dealershipIdx]->vehicles.size(); i++) {
@@ -457,6 +413,8 @@ int main() {
                     break;
                 }
 
+                int vehicleIdx = promptWithValidation<int>("Which vehicle would like to buy? (give index) ", [&dealershipIdx](int x){ return x > 0 && x <= dealerships[dealershipIdx]->vehicles.size(); }) - 1;
+                /*
                 int vehicleIdx;
                 do {
                     std::cout << "\n" << "Which vehicle would like to buy? (give index) ";
@@ -468,6 +426,7 @@ int main() {
                         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                     }
                 } while (std::cin.fail() || vehicleIdx >= dealerships[dealershipIdx]->vehicles.size() || vehicleIdx < 0);
+                 */
 
                 Vehicle* boughtVehicle = dealerships[dealershipIdx]->buyVehicleFrom(vehicleIdx, playerData->bankAccount);
                 if (boughtVehicle == nullptr) {
@@ -480,6 +439,8 @@ int main() {
                 break;
             }
             case 14: {
+                // Generate a new vehicle for a dealership
+
                 if (dealerships.empty()) {
                     std::cout << "There are no dealerships to generate a vehicle for.\n";
                     break;
@@ -491,6 +452,9 @@ int main() {
 
             // SYSTEM ACTIONS
             case -2: {
+                // Delete a person profile / account
+                int idx = promptWithValidation<int>("Enter the index of the account to delete: ", [](int x){ return x > 0 && x <= people.size(); }) - 1;
+                /*
                 int idx;
                 do {
                     std::cout << "\n" << "Enter the index of the account to delete:";
@@ -502,6 +466,7 @@ int main() {
                         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                     }
                 } while (std::cin.fail() || idx >= people.size() || idx < 0);
+                 */
 
                 if (people[idx] == playerData) {
                     std::cout << "You cannot delete the user that you are signed in as.\n";
@@ -514,16 +479,21 @@ int main() {
                 break;
             }
             case -5: {
+                // Generate a new dealership
                 dealerships.push_back(generateDealershipFromInput());
                 std::cout << "Successfully created a dealership!\n";
                 break;
             }
             case -7: {
+                // Delete a dealership
                 if (dealerships.empty()) {
                     std::cout << "There are no dealerships to delete.\n";
                     break;
                 }
 
+                int idx = promptWithValidation<int>("Enter the index of the dealership to delete: ", [](int x){ return x > 0 && x <= dealerships.size(); }) - 1;
+
+                /*
                 int idx;
                 do {
                     std::cout << "\n" << "Enter the index of the dealership to delete:";
@@ -535,6 +505,7 @@ int main() {
                         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                     }
                 } while (std::cin.fail() || idx >= dealerships.size() || idx < 0);
+                 */
 
                 dealerships.erase(dealerships.begin() + idx);
 
@@ -542,10 +513,12 @@ int main() {
                 break;
             }
             case -10: {
+                // Save all the data currently in memory into the data folder
                 saveAllData();
                 break;
             }
             case -100: {
+                // Exit from the program
                 std::cout << "Thank you for using the program!\n";
                 return 0;
             }
@@ -555,11 +528,16 @@ int main() {
             }
         }
 
+        /*
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         std::string tmp;
         std::cout << "\nPress enter to continue...";
         std::getline(std::cin, tmp);
+         */
+
+        promptFullLineWithValidation("\nPress enter to continue...", [](const std::string& str){ return true; });
+
         /*
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
