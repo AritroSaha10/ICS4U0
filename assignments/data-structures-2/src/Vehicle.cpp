@@ -1,9 +1,8 @@
-#include "Vehicle.hpp"
-// #include <uuid_v4_old/uuid_v4_old.h>
 #include <algorithm>
-#include "util.hpp"
 #include <filesystem>
 #include <fstream>
+#include "Vehicle.hpp"
+#include "util.hpp"
 
 namespace fs = std::filesystem;
 
@@ -184,7 +183,7 @@ void Vehicle::saveAsFile() {
     file.close();
 }
 
-std::ostream & operator <<(std::ostream &out, const Vehicle &obj) {
+std::ostream &operator<<(std::ostream &out, const Vehicle &obj) {
     out << "Vehicle Name: " << obj.name << "\n";
     out << "  Price: $" << formatWithCommas(obj.price) << "\n";
     out << "  Started?: " << (obj.started ? "Yes" : "No") << "\n";

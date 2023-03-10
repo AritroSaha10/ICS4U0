@@ -1,5 +1,6 @@
 // SOURCE: https://stackoverflow.com/a/60198074/7363404
 #pragma once
+
 #include <random>
 #include <sstream>
 #include <iomanip>
@@ -19,16 +20,13 @@ extern BankAccount load_bank_account(const std::string& uuid);
 /**
  * A class that is used for formatting numbers properly using commas
  */
-class CommaNumPunct : public std::numpunct<char>
-{
+class CommaNumPunct : public std::numpunct<char> {
 protected:
-    char do_thousands_sep() const override
-    {
+    char do_thousands_sep() const override {
         return ',';
     }
 
-    std::string do_grouping() const override
-    {
+    std::string do_grouping() const override {
         return "\03";
     }
 };
@@ -40,8 +38,7 @@ protected:
  * @return The formatted value with commas
  */
 template<class T>
-std::string formatWithCommas(T value)
-{
+std::string formatWithCommas(T value) {
     std::stringstream ss;
     ss.imbue(std::locale(std::locale(), new CommaNumPunct()));
     ss << std::fixed << std::setprecision(2) << value;
@@ -53,9 +50,10 @@ std::string formatWithCommas(T value)
  * @tparam T the type of the value requested from the user
  * @return the final value from the user
  */
-template<class T> T promptWithValidation2(const std::string& prompt) {
+template<class T>
+T promptWithValidation(const std::string &prompt) {
     // Wrap the previous class, but have the checker do nothing
-    return promptWithValidation(prompt, [](T, bool){ return true; });
+    return promptWithValidation(prompt, [](T, bool) { return true; });
 }
 
 /**
@@ -63,7 +61,7 @@ template<class T> T promptWithValidation2(const std::string& prompt) {
  * @param checker the checker function to further validate their input
  * @return the final value from the user
  */
-std::string promptFullLineWithValidation(const std::string& prompt, std::function<bool(std::string)> checker);
+std::string promptFullLineWithValidation(const std::string &prompt, std::function<bool(std::string)> checker);
 
 /**
  * Prompts a user and requires valid input
@@ -72,7 +70,8 @@ std::string promptFullLineWithValidation(const std::string& prompt, std::functio
  * @param checker the checker function to further validate their input
  * @return the final value from the user
  */
-template<class T> T promptWithValidation(const std::string& prompt, std::function<bool(T)> checker) {
+template<class T>
+T promptWithValidation(const std::string &prompt, std::function<bool(T)> checker) {
     T inp;
 
     // Continuously attempt to get valid input until we do

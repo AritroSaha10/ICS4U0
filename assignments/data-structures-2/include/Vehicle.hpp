@@ -1,4 +1,5 @@
 #pragma once
+
 #include <vector>
 #include "Person.hpp"
 
@@ -23,7 +24,8 @@ public:
      * @param maxSpeed max speed of Vehicle in km/h
      * @param color color of Vehicle
      */
-    Vehicle(std::string name, double price, int wheels, int doors, int seats, int maxPassengers, std::string manufacturer, double mileage, double horsepower, double maxSpeed, std::string color);
+    Vehicle(std::string name, double price, int wheels, int doors, int seats, int maxPassengers,
+            std::string manufacturer, double mileage, double horsepower, double maxSpeed, std::string color);
 
     /**
      * Start the car if possible
@@ -49,7 +51,7 @@ public:
      * @param driver pointer to driver
      * @return Whether a driver was successfully added
      */
-    bool addDriver(Person* driver);
+    bool addDriver(Person *driver);
 
     /**
      * Remove the driver from the vehicle
@@ -62,7 +64,7 @@ public:
      * @param newColor the new color
      * @return Whether the color was successfully changed
      */
-    bool changeColor(const std::string& newColor);
+    bool changeColor(const std::string &newColor);
 
     /**
      * Change the price of the vehicle
@@ -139,7 +141,8 @@ public:
      * @param obj reference to Vehicle to get data from
      * @return the manipulated output stream with the Vehicle data
      */
-    friend std::ostream & operator <<(std::ostream &out, const Vehicle &obj);
+    friend std::ostream &operator<<(std::ostream &out, const Vehicle &obj);
+
 protected:
     std::string name;
     double price;
@@ -151,7 +154,7 @@ protected:
     std::string manufacturer;
     double mileage;
     double horsepower;
-    Person* driver;
+    Person *driver;
     bool started;
     std::string color;
     std::string uuid;

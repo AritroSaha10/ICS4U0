@@ -11,8 +11,6 @@ VehicleDealership::VehicleDealership(std::string name, BankAccount *account) {
     this->name = name;
     this->bankAccount = account;
 
-    // UUIDv4::UUIDGenerator<std::mt19937_64> uuidGenerator;
-    // this->uuid = uuidGenerator.getUUID().str();
     this->uuid = generate_uuid_v4();
 }
 
@@ -20,8 +18,6 @@ VehicleDealership::VehicleDealership(std::string name, BankAccount *account, std
     this->name = name;
     this->bankAccount = account;
 
-    // UUIDv4::UUIDGenerator<std::mt19937_64> uuidGenerator;
-    // this->uuid = uuidGenerator.getUUID().str();
     this->uuid = uuid;
 }
 
@@ -29,17 +25,13 @@ std::string VehicleDealership::getName() const {
     return name;
 }
 
-std::vector<Vehicle*> VehicleDealership::getVehicles() {
-    return vehicles;
-}
-
-Vehicle* VehicleDealership::buyVehicleFrom(int idx, BankAccount* buyerBankAccount) {
+Vehicle *VehicleDealership::buyVehicleFrom(int idx, BankAccount *buyerBankAccount) {
     if (idx > vehicles.size() - 1) {
         // Can't sell a vehicle that we don't have
         return nullptr;
     }
 
-    Vehicle* desiredVehicle = vehicles[idx];
+    Vehicle *desiredVehicle = vehicles[idx];
     // Try making the transaction
     if (!BankAccount::makeTransaction(buyerBankAccount, bankAccount, desiredVehicle->getPrice())) {
         // Transaction didn't go through (not enough money / withdraw limit)
@@ -51,7 +43,7 @@ Vehicle* VehicleDealership::buyVehicleFrom(int idx, BankAccount* buyerBankAccoun
     return desiredVehicle;
 }
 
-int VehicleDealership::sellVehicleTo(Vehicle* vehicle, BankAccount* sellerBankAccount) {
+int VehicleDealership::sellVehicleTo(Vehicle *vehicle, BankAccount *sellerBankAccount) {
     if (vehicle == nullptr) {
         // No vehicle to add
         return -1;
@@ -91,7 +83,7 @@ json VehicleDealership::serializeToJSON() {
     serialized["name"] = name;
     serialized["bankAccount"] = bankAccount->serializeToJSON();
     serialized["vehicles"] = json::array();
-    for (Vehicle* vehicle : vehicles) {
+    for (Vehicle *vehicle: vehicles) {
         serialized["vehicles"].push_back(vehicle->serializeToJSON());
     }
 
@@ -109,11 +101,12 @@ VehicleDealership VehicleDealership::deserializeFromJSON(const json &data) {
     }
 
     // Make a BankAccount from the given info
-    auto* tmpAccount = new BankAccount(BankAccount::deserializeFromJSON(data["bankAccount"]));
+    auto *tmpAccount = new BankAccount(BankAccount::deserializeFromJSON(data["bankAccount"]));
 
-    VehicleDealership tmpVehicleDealership{data["name"].get<std::string>(), tmpAccount, data["uuid"].get<std::string>()};
+    VehicleDealership tmpVehicleDealership{data["name"].get<std::string>(), tmpAccount,
+                                           data["uuid"].get<std::string>()};
 
-    for (const json& vehicleData : data["vehicles"].get<json>()) {
+    for (const json &vehicleData: data["vehicles"].get<json>()) {
         tmpVehicleDealership.vehicles.push_back(new Vehicle(Vehicle::deserializeFromJSON(vehicleData)));
     }
 
@@ -140,7 +133,7 @@ void VehicleDealership::saveAsFile() {
     file.close();
 }
 
-VehicleDealership VehicleDealership::loadFromPath(std::string path) {
+VehicleDealership VehicleDealership::loadFromPath(const std::string& path) {
     if (!fs::exists(path)) {
         // File needs to exist to read anything
         throw std::runtime_error(path + " does not exist");
@@ -153,11 +146,11 @@ VehicleDealership VehicleDealership::loadFromPath(std::string path) {
     return VehicleDealership::deserializeFromJSON(importedJSON);
 }
 
-VehicleDealership VehicleDealership::loadFromUUID(std::string uuid) {
+VehicleDealership VehicleDealership::loadFromUUID(const std::string& uuid) {
     return VehicleDealership::loadFromPath("data/dealership/" + uuid + ".json");
 }
 
-std::ostream & operator <<(std::ostream &out, const VehicleDealership &obj) {
+std::ostream &operator<<(std::ostream &out, const VehicleDealership &obj) {
     out << "Dealership Name: " << obj.name << "\n";
     out << "  UUID: " << obj.uuid << "\n";
     out << "  # of vehicles: " << formatWithCommas(obj.vehicles.size()) << "\n";
