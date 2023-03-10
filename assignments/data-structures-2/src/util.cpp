@@ -49,7 +49,7 @@ std::string generate_uuid_v4() {
 }
 
 std::string promptFullLineWithValidation(const string &prompt, function<bool(std::string)> checker) {
-    // Mostly the same as the other promptWithValidation function, except this uses std::getline instead
+    // Mostly the same as the other promptWithValidation function, except it uses std::getline instead
     std::string inp;
 
     // Continuously attempt to get valid input until we do

@@ -24,7 +24,7 @@ std::vector<VehicleDealership *> dealerships;
  * @param vec vector to get pointers from
  */
 template<class T>
-void printPointerValsWithIdx(std::vector<T *> &vec) {
+void printPointerValuesWithIdx(std::vector<T *> &vec) {
     for (int i = 0; i < vec.size(); i++) {
         std::cout << i + 1 << ". " << *vec[i] << "\n";
     }
@@ -54,7 +54,7 @@ Person *generatePersonFromInput() {
     auto withdrawLimit = promptWithValidation<double>("Withdraw limit: ", [](double x) { return x >= 0; });
     auto depositLimit = promptWithValidation<double>("Deposit limit: ", [](double x) { return x >= 0; });
 
-    // Convert birth date to timestamp
+    // Convert birthday to timestamp
     struct tm myTm{};
     time_t rawTime;
     time(&rawTime);
@@ -167,7 +167,7 @@ void createDataDirs() {
 void switchCurrentPlayerAccount() {
     // Print out header for this section
     std::cout << color::rize("List of preloaded people:\n", "Green");
-    printPointerValsWithIdx<Person>(people);
+    printPointerValuesWithIdx<Person>(people);
     if (people.empty()) {
         std::cout
                 << "  No people profiles could be loaded in :( If you didn't expect this, check the path of your data files (should be data/people)\n";
@@ -281,7 +281,7 @@ int main() {
             case 4: {
                 // Print out a list of the user's vehicles
                 std::cout << "Your vehicle list: \n";
-                printPointerValsWithIdx<Vehicle>(playerData->vehicles);
+                printPointerValuesWithIdx<Vehicle>(playerData->vehicles);
                 if (playerData->vehicles.empty()) {
                     std::cout << "  You have no vehicles :(\n";
                 }
@@ -342,7 +342,7 @@ int main() {
                 break;
             }
 
-            // DEALERSHIP ACTIONS
+                // DEALERSHIP ACTIONS
             case 10: {
                 // Print out the names of all the dealerships
                 std::cout << "List of all dealerships: \n";
@@ -438,7 +438,7 @@ int main() {
                 break;
             }
 
-            // SYSTEM ACTIONS
+                // SYSTEM ACTIONS
             case -2: {
                 // Delete a person profile / account
                 int idx = promptWithValidation<int>("Enter the index of the account to delete: ",

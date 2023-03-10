@@ -6,7 +6,6 @@
 
 namespace fs = std::filesystem;
 
-
 VehicleDealership::VehicleDealership(std::string name, BankAccount *account) {
     this->name = name;
     this->bankAccount = account;
@@ -133,7 +132,7 @@ void VehicleDealership::saveAsFile() {
     file.close();
 }
 
-VehicleDealership VehicleDealership::loadFromPath(const std::string& path) {
+VehicleDealership VehicleDealership::loadFromPath(const std::string &path) {
     if (!fs::exists(path)) {
         // File needs to exist to read anything
         throw std::runtime_error(path + " does not exist");
@@ -146,7 +145,7 @@ VehicleDealership VehicleDealership::loadFromPath(const std::string& path) {
     return VehicleDealership::deserializeFromJSON(importedJSON);
 }
 
-VehicleDealership VehicleDealership::loadFromUUID(const std::string& uuid) {
+VehicleDealership VehicleDealership::loadFromUUID(const std::string &uuid) {
     return VehicleDealership::loadFromPath("data/dealership/" + uuid + ".json");
 }
 

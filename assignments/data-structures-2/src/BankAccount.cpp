@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <utility>
 
 namespace fs = std::filesystem;
 
@@ -27,7 +28,7 @@ BankAccount::BankAccount(double startingBalance, double minBalance, double withd
     this->withdrawLimit = withdrawLimit;
     this->depositLimit = depositLimit;
 
-    this->uuid = uuid;
+    this->uuid = std::move(uuid);
 }
 
 BankAccount::BankAccount(double withdrawLimit, double depositLimit) {

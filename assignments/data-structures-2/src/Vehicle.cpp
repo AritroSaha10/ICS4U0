@@ -47,7 +47,7 @@ bool Vehicle::stop() {
 
 bool Vehicle::drive(double distance) {
     if (!started || distance <= 0) {
-        // Don't drive if it's not started or you're trying to drive a <=0 distance
+        // Don't drive if it's not started, or you're trying to drive a <=0 distance
         return false;
     }
 
@@ -139,7 +139,7 @@ json Vehicle::serializeToJSON() {
     serialized["manufacturer"] = manufacturer;
     serialized["mileage"] = mileage;
     serialized["horsepower"] = horsepower;
-    serialized["started"] = false; // Make sure the car is startable in the future in case if it somehow saves during driving
+    serialized["started"] = false; // Make sure the car can be started in the future in case if it somehow saves during driving
     serialized["color"] = color;
     serialized["uuid"] = uuid;
 
