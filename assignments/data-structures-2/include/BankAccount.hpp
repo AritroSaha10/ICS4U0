@@ -113,7 +113,6 @@ public:
      * The filename of the saved file is the UUID.
      */
     void saveAsFile();
-    // static BankAccount loadFromUUID(std::string uuid);
 
     /**
      * Convert the data in the instance into a string

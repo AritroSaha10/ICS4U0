@@ -83,19 +83,19 @@ public:
      * Get the number of wheels that the vehicle has
      * @return # of wheels that vehicle has
      */
-    double getWheels() const;
+    int getWheels() const;
 
     /**
      * Get the number of doors that the vehicle has
      * @return # of doors that vehicle has
      */
-    double getDoors() const;
+    int getDoors() const;
 
     /**
      * Get the number of seats that the vehicle has
      * @return # of seats that vehicle has
      */
-    double getSeats() const;
+    int getSeats() const;
 
     /**
      * Get the horsepower available from the vehicle's engine

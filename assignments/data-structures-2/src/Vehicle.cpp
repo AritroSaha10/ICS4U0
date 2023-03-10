@@ -99,15 +99,15 @@ double Vehicle::getMaxSpeed() const {
     return maxSpeed;
 }
 
-double Vehicle::getWheels() const {
+int Vehicle::getWheels() const {
     return wheels;
 }
 
-double Vehicle::getDoors() const {
+int Vehicle::getDoors() const {
     return doors;
 }
 
-double Vehicle::getSeats() const {
+int Vehicle::getSeats() const {
     return seats;
 }
 
