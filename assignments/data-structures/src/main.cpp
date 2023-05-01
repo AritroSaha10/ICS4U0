@@ -1,6 +1,10 @@
 /**
- * The main file for the Data Structures assignment (ICS4U0). The program is a car simulator
- * that allows users to run actions on both people and vehicle dealerships.
+ * Name: Car Simulator
+ * Description: The main file for the Data Structures assignment (ICS4U0). The program is a car simulator
+ * that allows users to run actions on both people and vehicle dealerships. It does this using a custom-made CLI
+ * interface, prompting the user which out of the 14 available actions they'd like to run and running it
+ * immediately after. It also has the ability to save its current state into JSON files in a data folder.
+ * This allows users to use the program at a later time without losing their data.
  *
  * @cite Feng Wang, Colorize, (2020), GitHub repository, https://github.com/fengwang/colorize
  * @cite Niels Lohmann, JSON for Modern C++, (2022), https://github.com/nlohmann/json
