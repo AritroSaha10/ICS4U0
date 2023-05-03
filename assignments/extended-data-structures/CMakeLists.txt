@@ -18,6 +18,10 @@ file(GLOB all_SRCS
         "${PROJECT_SOURCE_DIR}/include/*.hpp"
         "${PROJECT_SOURCE_DIR}/src/*.cpp"
         "${PROJECT_SOURCE_DIR}/src/*.c"
+        "${PROJECT_SOURCE_DIR}/include/vehicles/*.h"
+        "${PROJECT_SOURCE_DIR}/include/vehicles/*.hpp"
+        "${PROJECT_SOURCE_DIR}/src/vehicles/*.cpp"
+        "${PROJECT_SOURCE_DIR}/src/vehicles/*.c"
         )
 
 add_executable(ExtendedDataStructures ${all_SRCS})

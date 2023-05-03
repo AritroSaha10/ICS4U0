@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include "BankAccount.hpp"
-#include "Vehicle.hpp"
+#include "include/vehicles/Vehicle.hpp"
 #include "util.hpp"
 
 #include <nlohmann/json.hpp>

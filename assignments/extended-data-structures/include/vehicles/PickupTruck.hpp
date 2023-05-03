@@ -40,11 +40,11 @@ public:
     double getEngineCylinderCount() const;
 
     /**
-     * Calculate the fuel usage for the vehicle to travel a certain amount of kilometres.
+     * Roughly approximate the fuel usage for the vehicle to travel a certain amount of kilometres.
      * @param kilometres Number of kilometres
      * @return Fuel usage in litres
      */
-    double calculateFuelUsageFromKm(double kilometres) override;
+    double appproximateFuelUsageFromKm(double kilometres) override;
 
     /**
      * Serialize all the data in the class into JSON.

@@ -4,7 +4,7 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 #include "BankAccount.hpp"
-#include "Vehicle.hpp"
+#include "include/vehicles/Vehicle.hpp"
 
 using json = nlohmann::json;
 

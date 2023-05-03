@@ -1,13 +1,13 @@
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
-#include "Vehicle.hpp"
+#include "vehicles/Vehicle.hpp"
 #include "util.hpp"
 
 namespace fs = std::filesystem;
 
 Vehicle::Vehicle(std::string name, double price, int wheels, int doors, int seats, int maxPassengers,
-                 std::string manufacturer, double mileage, double horsepower, double maxSpeed, std::string color) {
+                 std::string manufacturer, double mileage, double horsepower, double maxSpeed, std::string color, std::string type) {
     this->name = name;
     this->price = price;
     this->wheels = wheels;
@@ -21,6 +21,7 @@ Vehicle::Vehicle(std::string name, double price, int wheels, int doors, int seat
     this->color = color;
     this->driver = nullptr;
     this->started = false;
+    this->type = type;
 
     this->uuid = generate_uuid_v4();
 }
@@ -141,27 +142,29 @@ json Vehicle::serializeToJSON() {
     serialized["horsepower"] = horsepower;
     serialized["started"] = false; // Make sure the car can be started in the future in case if it somehow saves during driving
     serialized["color"] = color;
+    serialized["type"] = type;
     serialized["uuid"] = uuid;
 
     return serialized;
 }
 
-Vehicle Vehicle::deserializeFromJSON(const json &data) {
+json Vehicle::getSanitizedJSON(const json &data) {
     // Ensure that all keys are there
     std::vector<std::string> requiredKeys = {"uuid", "name", "price", "wheels", "doors", "seats",
                                              "maxPassengers", "maxSpeed", "manufacturer", "mileage", "horsepower",
-                                             "started", "color"};
+                                             "started", "color", "type"};
+    json sanitizedData;
+
     for (const std::string &key: requiredKeys) {
         if (!data.contains(key)) {
             throw;
         }
+
+        sanitizedData[key] = data[key];
     }
 
-    // Initialize Vehicle using all the info
-    return {data["name"].get<std::string>(), data["price"].get<double>(), data["wheels"].get<int>(),
-            data["doors"].get<int>(), data["seats"].get<int>(), data["maxPassengers"].get<int>(),
-            data["manufacturer"].get<std::string>(), data["mileage"].get<double>(), data["horsepower"].get<double>(),
-            data["maxSpeed"].get<double>(), data["color"].get<std::string>()};
+    // Return sanitized version of data
+    return sanitizedData;
 }
 
 void Vehicle::saveAsFile() {
@@ -183,19 +186,27 @@ void Vehicle::saveAsFile() {
     file.close();
 }
 
-std::ostream &operator<<(std::ostream &out, const Vehicle &obj) {
-    out << "Vehicle Name: " << obj.name << "\n";
-    out << "  Price: $" << formatWithCommas(obj.price) << "\n";
-    out << "  Started?: " << (obj.started ? "Yes" : "No") << "\n";
-    out << "  Wheels: " << obj.wheels << "\n";
-    out << "  Doors: " << obj.doors << "\n";
-    out << "  Seats: " << obj.seats << "\n";
-    out << "  Max passengers: " << obj.maxPassengers << "\n";
-    out << "  Manufacturer: " << obj.manufacturer << "\n";
-    out << "  Mileage: " << obj.mileage << " km" << "\n";
-    out << "  Horsepower: " << obj.horsepower << " hp" << "\n";
-    out << "  Max speed: " << obj.maxSpeed << " km/h" << "\n";
-    out << "  Color: " << obj.color << "\n";
+std::string Vehicle::to_formatted_string() const {
+    std::string out;
 
+    out += "Vehicle Name: " + this->name + "\n";
+    out += "  Price: $" + formatWithCommas(this->price) + "\n";
+    out += "  Started?: ";
+    out += this->started ? "Yes\n" : "No\n";
+    out += "  Wheels: " + std::to_string(this->wheels) + "\n";
+    out += "  Doors: " + std::to_string(this->doors) + "\n";
+    out += "  Seats: " + std::to_string(this->seats) + "\n";
+    out += "  Max passengers: " + std::to_string(this->maxPassengers) + "\n";
+    out += "  Manufacturer: " + this->manufacturer + "\n";
+    out += "  Mileage: " + std::to_string(this->mileage) + " km" + "\n";
+    out += "  Horsepower: " + std::to_string(this->horsepower) + " hp" + "\n";
+    out += "  Max speed: " + std::to_string(this->maxSpeed) + " km/h" + "\n";
+    out += "  Color: " + this->color + "\n";
+
+    return out;
+}
+
+std::ostream &operator<<(std::ostream &out, const Vehicle &obj) {
+    out << obj.to_formatted_string();
     return out;
 }

@@ -23,6 +23,7 @@ public:
      * @param horsepower horsepower of Vehicle
      * @param maxSpeed max speed of Vehicle in km/h
      * @param color color of Vehicle
+     * @param type type of vehicle (any derived class)
      */
     Vehicle(std::string name, double price, int wheels, int doors, int seats, int maxPassengers,
             std::string manufacturer, double mileage, double horsepower, double maxSpeed, std::string color, std::string type);
@@ -116,11 +117,11 @@ public:
     std::string getName() const;
 
     /**
-     * Calculate the fuel usage for the vehicle to travel a certain amount of kilometres.
+     * Roughly approximate the fuel usage for the vehicle to travel a certain amount of kilometres.
      * @param kilometres Number of kilometres
      * @return Fuel usage in litres
      */
-    virtual double calculateFuelUsageFromKm(double kilometres) = 0;
+    virtual double appproximateFuelUsageFromKm(double kilometres) = 0;
 
     /**
      * Serialize all the data in the class into JSON.
@@ -129,10 +130,24 @@ public:
     virtual json serializeToJSON();
 
     /**
+     * Sanitize the JSON data that should be deserialized into a derived class of Vehicle.
+     * @param data the JSON data to sanitize
+     * @return the sanitized JSON data
+     * @throws runtime_error if required key does not exist
+     */
+    static json getSanitizedJSON(const json &data);
+
+    /**
      * Save the data in the instance as a JSON file in its expected location.
      * The filename of the saved file is the UUID.
      */
     virtual void saveAsFile();
+
+    /**
+     * Prepares the information within the Vehicle class to be printed as a string.
+     * @return formatted string of all of the info in Vehicle
+     */
+    virtual std::string to_formatted_string() const;
 
     /**
      * Convert the data in the instance into a string

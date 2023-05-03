@@ -1,4 +1,5 @@
 #pragma once
+
 #include <vector>
 #include "Vehicle.hpp"
 
@@ -18,7 +19,8 @@ public:
      * @param trunkCapacity trunk capacity available in sedan, in kilograms
      * @param color color of sedan
      */
-    Sedan(std::string name, double price, std::string manufacturer, double mileage, double horsepower, double maxSpeed, double trunkCapacity, double towingMaxLoad, double engineCylinderCount, std::string color);
+    Sedan(std::string name, double price, std::string manufacturer, double mileage, double horsepower, double maxSpeed,
+          double trunkCapacity, double engineCylinderCount, std::string color);
 
     /**
      * Get the max weight that can be in the trunk.
@@ -33,11 +35,11 @@ public:
     double getEngineCylinderCount() const;
 
     /**
-     * Calculate the fuel usage for the vehicle to travel a certain amount of kilometres.
+     * Roughly approximate the fuel usage for the vehicle to travel a certain amount of kilometres.
      * @param kilometres Number of kilometres
      * @return Fuel usage in litres
      */
-    double calculateFuelUsageFromKm(double kilometres) override;
+    double appproximateFuelUsageFromKm(double kilometres) override;
 
     /**
      * Serialize all the data in the class into JSON.
@@ -70,12 +72,11 @@ public:
     static Sedan loadFromPath(std::string path);
 
     /**
-     * Convert the data in the instance into a string
-     * @param out the current output stream to add onto
-     * @param obj reference to Sedan to get data from
-     * @return the manipulated output stream with the Sedan data
+     * Prepares the information within the Sedan class to be printed as a string.
+     * @return formatted string of all of the info in Sedan
      */
-    friend std::ostream &operator<<(std::ostream &out, const Sedan &obj);
+    std::string to_formatted_string() const override;
+
 private:
     double trunkCapacity;
     double engineCylinderCount;
