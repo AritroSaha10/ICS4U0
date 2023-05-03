@@ -15,23 +15,29 @@ public:
      * @param mileage mileage of sedan, in kilometres
      * @param horsepower horsepower of sedan
      * @param maxSpeed max speed of sedan, in km/h
-     * @param trunkCapacity trunk capacity available in sedan, in litres
-     * @param towingMaxLoad max weight that can be towed, in kg
+     * @param trunkCapacity trunk capacity available in sedan, in kilograms
      * @param color color of sedan
      */
-    Sedan(std::string name, double price, std::string manufacturer, double mileage, double horsepower, double maxSpeed, double trunkCapacity, double towingMaxLoad, std::string color);
+    Sedan(std::string name, double price, std::string manufacturer, double mileage, double horsepower, double maxSpeed, double trunkCapacity, double towingMaxLoad, double engineCylinderCount, std::string color);
 
     /**
-     * Get the trunk capacity.
-     * @return the trunk capacity
+     * Get the max weight that can be in the trunk.
+     * @return the trunk capacity in kg
      */
     double getTrunkCapacity() const;
 
     /**
-     * Get the max weight that can be towed by the sedan.
-     * @return The max towable weight in kilograms.
+     * Get the number of cylinders in the sedan's engine.
+     * @return The number of cylinders in its engine.
      */
-    double getTowingMaxLoad() const;
+    double getEngineCylinderCount() const;
+
+    /**
+     * Calculate the fuel usage for the vehicle to travel a certain amount of kilometres.
+     * @param kilometres Number of kilometres
+     * @return Fuel usage in litres
+     */
+    double calculateFuelUsageFromKm(double kilometres) override;
 
     /**
      * Serialize all the data in the class into JSON.
@@ -40,7 +46,7 @@ public:
     json serializeToJSON() override;
 
     /**
-     * Deserialize all the data from a JSON file into an instance of VehicleDealership.
+     * Deserialize all the data from a JSON file into an instance of Sedan.
      * @param data the JSON data to deserialize
      * @return a new VehicleDealership instance made using the JSON data.
      * @throws runtime_error if required key does not exist
@@ -67,10 +73,10 @@ public:
      * Convert the data in the instance into a string
      * @param out the current output stream to add onto
      * @param obj reference to Sedan to get data from
-     * @return the manipulated output stream with the Vehicle data
+     * @return the manipulated output stream with the Sedan data
      */
     friend std::ostream &operator<<(std::ostream &out, const Sedan &obj);
 private:
     double trunkCapacity;
-    double towingMaxLoad;
+    double engineCylinderCount;
 };

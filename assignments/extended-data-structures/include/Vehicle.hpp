@@ -25,7 +25,7 @@ public:
      * @param color color of Vehicle
      */
     Vehicle(std::string name, double price, int wheels, int doors, int seats, int maxPassengers,
-            std::string manufacturer, double mileage, double horsepower, double maxSpeed, std::string color);
+            std::string manufacturer, double mileage, double horsepower, double maxSpeed, std::string color, std::string type);
 
     /**
      * Start the car if possible
@@ -116,40 +116,23 @@ public:
     std::string getName() const;
 
     /**
+     * Calculate the fuel usage for the vehicle to travel a certain amount of kilometres.
+     * @param kilometres Number of kilometres
+     * @return Fuel usage in litres
+     */
+    virtual double calculateFuelUsageFromKm(double kilometres) = 0;
+
+    /**
      * Serialize all the data in the class into JSON.
      * @return serialized JSON data of the class
      */
     virtual json serializeToJSON();
 
     /**
-     * Deserialize all the data from a JSON file into an instance of Vehicle.
-     * @param data the JSON data to deserialize
-     * @return a new BankAccount instance made using the JSON data.
-     * @throws runtime_error if required key does not exist
-     */
-    static Vehicle deserializeFromJSON(const json &data);
-
-    /**
      * Save the data in the instance as a JSON file in its expected location.
      * The filename of the saved file is the UUID.
      */
     virtual void saveAsFile();
-
-    /**
-     * Loads in a Vehicle instance from a file given its UUID
-     * @param uuid the UUID of the object
-     * @return An instance of the deserialized Sedan from the JSON file
-     * @throws runtime_error if a file with the UUID does not exist
-     */
-    static Vehicle loadFromUUID(std::string uuid);
-
-    /**
-     * Loads in a Sedan instance from a file given its path
-     * @param path the path of the serialized instance
-     * @return An instance of the deserialized Sedan from the JSON file
-     * @throws runtime_error if a file does not exist at given path
-     */
-    static Vehicle loadFromPath(std::string path);
 
     /**
      * Convert the data in the instance into a string
@@ -174,4 +157,5 @@ protected:
     bool started;
     std::string color;
     std::string uuid;
+    std::string type;
 };
