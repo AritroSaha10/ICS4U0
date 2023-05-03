@@ -8,7 +8,7 @@ namespace fs = std::filesystem;
 Sedan::Sedan(std::string name, double price, std::string manufacturer, double mileage, double horsepower,
              double maxSpeed, double trunkCapacity, double engineCylinderCount,
              std::string color) : Vehicle(name, price, 4, 4, 5, 4, std::move(manufacturer), mileage, horsepower,
-                                          maxSpeed, std::move(color), "Sedan") {
+                                          maxSpeed, std::move(color), "sedan") {
     this->trunkCapacity = trunkCapacity;
     this->engineCylinderCount = engineCylinderCount;
 }
@@ -21,13 +21,13 @@ double Sedan::getEngineCylinderCount() const {
     return engineCylinderCount;
 }
 
-double Sedan::appproximateFuelUsageFromKm(double kilometres) {
-    // Average fuel efficiency for most sedans is around 7.4 km/L, we can predict that a stronger engine is
+double Sedan::approximateFuelUsageFromKm(double kilometres) {
+    // Average fuel efficiency for most sedans is around 13.6 km/L, we can predict that a stronger engine is
     // less efficient. It will also need more fuel to push more weight in its trunk.
-    // These are just ballpark equations
-    double fuelEfficiency = 7.4;
-    fuelEfficiency -= std::clamp((this->engineCylinderCount - 4) * 0.4, -2.0, 3.2);
-    fuelEfficiency -= std::clamp((this->trunkCapacity) * 0.008, 0.0, 2.0);
+    // These are just ballpark equations, fuel efficiency depends on a lot of more factors.
+    double fuelEfficiency = 13.6;
+    fuelEfficiency -= std::clamp((this->engineCylinderCount - 4) * 0.6, -2.0, 3.2);
+    fuelEfficiency -= std::clamp((this->trunkCapacity) * 0.01, 0.0, 2.0);
 
     // Find litres from fuel efficient and km driven using km/(km/L) = L
     double litresUsed = kilometres / fuelEfficiency;
@@ -63,7 +63,7 @@ Sedan Sedan::deserializeFromJSON(const json &data) {
 }
 
 Sedan Sedan::loadFromUUID(std::string uuid) {
-    std::string fname = "data/sedans/" + uuid + ".json";
+    std::string fname = "data/sedan/" + uuid + ".json";
     if (!fs::exists(fname)) {
         // File needs to exist to read anything
         throw;

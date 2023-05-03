@@ -39,7 +39,7 @@ public:
      * @param kilometres Number of kilometres
      * @return Fuel usage in litres
      */
-    double appproximateFuelUsageFromKm(double kilometres) override;
+    double approximateFuelUsageFromKm(double kilometres) override;
 
     /**
      * Serialize all the data in the class into JSON.
@@ -50,7 +50,7 @@ public:
     /**
      * Deserialize all the data from a JSON file into an instance of Sedan.
      * @param data the JSON data to deserialize
-     * @return a new VehicleDealership instance made using the JSON data.
+     * @return a new Sedan instance made using the JSON data.
      * @throws runtime_error if required key does not exist
      */
     static Sedan deserializeFromJSON(const json &data);

@@ -176,12 +176,12 @@ void Vehicle::saveAsFile() {
     }
 
     // Make bank accounts directory if needed
-    if (!fs::is_directory("data/vehicles") || !fs::exists("data/vehicles")) {
-        fs::create_directory("data/vehicles");
+    if (!fs::is_directory("data/" + this->type) || !fs::exists("data/" + this->type)) {
+        fs::create_directory("data/" + this->type);
     }
 
     // Write data to file
-    std::ofstream file("data/vehicles/" + uuid + ".json");
+    std::ofstream file("data/"  + this->type + "/" + uuid + ".json");
     file << std::setw(4) << serializedJSON << std::endl;
     file.close();
 }

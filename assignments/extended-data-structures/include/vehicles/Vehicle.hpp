@@ -121,7 +121,7 @@ public:
      * @param kilometres Number of kilometres
      * @return Fuel usage in litres
      */
-    virtual double appproximateFuelUsageFromKm(double kilometres) = 0;
+    virtual double approximateFuelUsageFromKm(double kilometres) = 0;
 
     /**
      * Serialize all the data in the class into JSON.
