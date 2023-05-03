@@ -1,6 +1,9 @@
 # -----------------------------------------------------------------------------
 # Name:        Tower of Hanoi Solver
-# Purpose:     Solves the Tower of Hanoi puzzle using a recursive approach.
+# Purpose:     Solves the Tower of Hanoi puzzle using a recursive 
+#               approach. It also allows you to customize the problem 
+#               itself by specifying the number of disks, where they are, 
+#               and where they should be moved.
 #
 # Author:      Aritro Saha
 # Created:     09-Apr-2023
