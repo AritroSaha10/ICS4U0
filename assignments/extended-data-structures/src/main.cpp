@@ -1,6 +1,6 @@
 /**
  * Name: Car Simulator
- * Description: The main file for the Data Structures assignment (ICS4U0). The program is a car simulator
+ * Description: The main file for the Extending Data Structures assignment (ICS4U0). The program is a car simulator
  * that allows users to run actions on both people and vehicle dealerships. It does this using a custom-made CLI
  * interface, prompting the user which out of the 14 available actions they'd like to run and running it
  * immediately after. It also has the ability to save its current state into JSON files in a data folder.

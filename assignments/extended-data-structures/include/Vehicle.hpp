@@ -133,7 +133,23 @@ public:
      * Save the data in the instance as a JSON file in its expected location.
      * The filename of the saved file is the UUID.
      */
-    void saveAsFile();
+    virtual void saveAsFile();
+
+    /**
+     * Loads in a Vehicle instance from a file given its UUID
+     * @param uuid the UUID of the object
+     * @return An instance of the deserialized Sedan from the JSON file
+     * @throws runtime_error if a file with the UUID does not exist
+     */
+    static Vehicle loadFromUUID(std::string uuid);
+
+    /**
+     * Loads in a Sedan instance from a file given its path
+     * @param path the path of the serialized instance
+     * @return An instance of the deserialized Sedan from the JSON file
+     * @throws runtime_error if a file does not exist at given path
+     */
+    static Vehicle loadFromPath(std::string path);
 
     /**
      * Convert the data in the instance into a string
