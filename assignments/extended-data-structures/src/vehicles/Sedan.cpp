@@ -93,7 +93,7 @@ std::string Sedan::to_formatted_string() const {
     std::string baseString = Vehicle::to_formatted_string();
 
     baseString += "  Trunk capacity: " + std::to_string(this->trunkCapacity) + " kg\n";
-    baseString += "  Engine cylinder count: " + std::to_string(this->engineCylinderCount) + " kg\n";
+    baseString += "  Engine cylinder count: " + std::to_string(this->engineCylinderCount) + "\n";
 
     return baseString;
 }
