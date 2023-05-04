@@ -117,6 +117,12 @@ public:
     std::string getName() const;
 
     /**
+     * Get the UUID of the vehicle
+     * @return
+     */
+    std::string getUUID() const;
+
+    /**
      * Roughly approximate the fuel usage for the vehicle to travel a certain amount of kilometres.
      * @param kilometres Number of kilometres
      * @return Fuel usage in litres

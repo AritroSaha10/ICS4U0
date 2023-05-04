@@ -109,13 +109,13 @@ json Person::serializeToJSON() {
     serialized["bankAccount"] = bankAccount->serializeToJSON();
     serialized["vehicles"] = json::array();
     for (Vehicle *vehicle: vehicles) {
-        serialized["vehicles"].push_back(vehicle->serializeToJSON());
+        serialized["vehicles"].push_back(vehicle->getUUID());
     }
 
     return serialized;
 }
 
-Person Person::deserializeFromJSON(const json &data) {
+Person Person::deserializeFromJSON(const json &data, std::map<std::string, Vehicle*>& vehicleUUIDsToPointers) {
     // Ensure that all keys are there
     std::vector<std::string> requiredKeys = {"uuid", "firstName", "middleName", "lastName", "birthTimestamp", "height",
                                              "bankAccount", "vehicles"};
@@ -133,8 +133,13 @@ Person Person::deserializeFromJSON(const json &data) {
                      data["height"].get<double>(),
                      tmpAccount, data["uuid"].get<std::string>()};
 
-    for (const json &vehicleData: data["vehicles"].get<json>()) {
-        tmpPerson.vehicles.push_back(new Vehicle(Vehicle::deserializeFromJSON(vehicleData)));
+    for (const std::string& uuid: data["vehicles"].get<json>()) {
+        // tmpPerson.vehicles.push_back(new Vehicle(Vehicle::deserializeFromJSON(vehicleData)));
+        if (!vehicleUUIDsToPointers.contains(uuid)) {
+            std::cout << "WARN: Vehicle of UUID " << uuid << " does not exist! Skipping.\n";
+            continue;
+        }
+        tmpPerson.vehicles.push_back(vehicleUUIDsToPointers.at(uuid));
     }
 
     // Initialize Person using all the info

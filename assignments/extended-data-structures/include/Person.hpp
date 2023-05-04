@@ -107,10 +107,11 @@ public:
     /**
      * Deserialize all the data from a JSON file into an instance of Person.
      * @param data the JSON data to deserialize
+     * @param vehicleUUIDsToPointers a map of UUIDs to Vehicle pointers loaded in from their folders
      * @return a new Person instance made using the JSON data.
      * @throws runtime_error if required key does not exist
      */
-    static Person deserializeFromJSON(const json &data);
+    static Person deserializeFromJSON(const json &data, std::map<std::string, Vehicle*>& vehicleUUIDsToPointers);
 
     /**
      * Save the data in the instance as a JSON file in its expected location.

@@ -124,6 +124,10 @@ std::string Vehicle::getName() const {
     return name;
 }
 
+std::string Vehicle::getUUID() const {
+    return uuid;
+}
+
 json Vehicle::serializeToJSON() {
     json serialized = {};
 
