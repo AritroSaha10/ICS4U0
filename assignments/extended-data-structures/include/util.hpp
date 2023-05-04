@@ -61,7 +61,7 @@ T promptWithValidation(const std::string &prompt) {
  * @param checker the checker function to further validate their input
  * @return the final value from the user
  */
-std::string promptFullLineWithValidation(const std::string &prompt, std::function<bool(std::string)> checker);
+std::string promptFullLineWithValidation(const std::string &prompt, std::function<bool(std::string)> checker, bool removeWhitespace = true);
 
 /**
  * Prompts a user and requires valid input

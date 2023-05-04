@@ -48,7 +48,7 @@ std::string generate_uuid_v4() {
     return ss.str();
 }
 
-std::string promptFullLineWithValidation(const string &prompt, function<bool(std::string)> checker) {
+std::string promptFullLineWithValidation(const string &prompt, function<bool(std::string)> checker, bool removeWhitespace) {
     // Mostly the same as the other promptWithValidation function, except it uses std::getline instead
     std::string inp;
 
@@ -57,17 +57,18 @@ std::string promptFullLineWithValidation(const string &prompt, function<bool(std
         cout << prompt;
         cin.clear();
         cin.sync();
+        if (removeWhitespace) ws(cin);
         getline(cin, inp);
+
+        // Print out an error message if we're still going to continue prompting them
+        if (cin.fail() || !checker(inp)) {
+            cout << "Invalid input. Please try again.\n";
+        }
 
         // Error in converting input to the type, clear the buffer and try again next time
         if (cin.fail()) {
             cin.clear();
             cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        }
-
-        // Print out an error message if we're still going to continue prompting them
-        if (cin.fail() || !checker(inp)) {
-            cout << "Invalid input. Please try again.\n";
         }
     } while (std::cin.fail() || !checker(inp));
 

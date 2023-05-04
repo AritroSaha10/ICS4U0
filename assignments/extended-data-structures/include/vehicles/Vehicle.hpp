@@ -153,7 +153,7 @@ public:
      * Prepares the information within the Vehicle class to be printed as a string.
      * @return formatted string of all of the info in Vehicle
      */
-    virtual std::string to_formatted_string() const;
+    virtual std::string to_formatted_string();
 
     /**
      * Convert the data in the instance into a string
@@ -161,7 +161,7 @@ public:
      * @param obj reference to Vehicle to get data from
      * @return the manipulated output stream with the Vehicle data
      */
-    friend std::ostream &operator<<(std::ostream &out, const Vehicle &obj);
+    friend std::ostream &operator<<(std::ostream &out, Vehicle &obj);
 
 protected:
     std::string name;

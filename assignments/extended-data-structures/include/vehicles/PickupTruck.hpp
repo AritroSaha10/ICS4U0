@@ -20,7 +20,7 @@ public:
      * @param engineCylinderCount the number of cylinders in the pickup's engine
      * @param color color of pickup
      */
-    PickupTruck(std::string name, double price, std::string manufacturer, double mileage, double horsepower, double maxSpeed, double bedCapacity, double towingMaxLoad, double engineCylinderCount, std::string color);
+    PickupTruck(std::string name, double price, std::string manufacturer, double mileage, double horsepower, double maxSpeed, double bedCapacity, double towingMaxLoad, int engineCylinderCount, std::string color);
 
     /**
      * Get the max weight that can be in the trunk.
@@ -81,9 +81,9 @@ public:
      * Prepares the information within the PickupTruck class to be printed as a string.
      * @return formatted string of all of the info in PickupTruck
      */
-    std::string to_formatted_string() const override;
+    std::string to_formatted_string() override;
 private:
     double bedCapacity;
     double towingMaxLoad;
-    double engineCylinderCount;
+    int engineCylinderCount;
 };

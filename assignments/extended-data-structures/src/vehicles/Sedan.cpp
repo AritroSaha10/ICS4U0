@@ -2,12 +2,13 @@
 #include "vehicles/Sedan.hpp"
 #include <fstream>
 #include <filesystem>
+#include <utility>
 
 namespace fs = std::filesystem;
 
 Sedan::Sedan(std::string name, double price, std::string manufacturer, double mileage, double horsepower,
-             double maxSpeed, double trunkCapacity, double engineCylinderCount,
-             std::string color) : Vehicle(name, price, 4, 4, 5, 4, std::move(manufacturer), mileage, horsepower,
+             double maxSpeed, double trunkCapacity, int engineCylinderCount,
+             std::string color) : Vehicle(std::move(name), price, 4, 4, 5, 4, std::move(manufacturer), mileage, horsepower,
                                           maxSpeed, std::move(color), "sedan") {
     this->trunkCapacity = trunkCapacity;
     this->engineCylinderCount = engineCylinderCount;
@@ -56,27 +57,21 @@ Sedan Sedan::deserializeFromJSON(const json &data) {
         sanitizedData[key] = data[key];
     }
 
-    return {
+    Sedan tmp{
             data["name"], data["price"], data["manufacturer"], data["mileage"], data["horsepower"], data["maxSpeed"],
             data["trunkCapacity"], data["engineCylinderCount"], data["color"]
     };
+
+    tmp.uuid = data["uuid"];
+    return tmp;
 }
 
-Sedan Sedan::loadFromUUID(std::string uuid) {
-    std::string fname = "data/sedan/" + uuid + ".json";
-    if (!fs::exists(fname)) {
-        // File needs to exist to read anything
-        throw;
-    }
-
-    std::ifstream file(fname);
-    json importedJSON;
-    file >> importedJSON;
-
-    return Sedan::deserializeFromJSON(importedJSON);
+Sedan Sedan::loadFromUUID(const std::string& uuid) {
+    std::string fname = "data/vehicles/" + uuid + ".json";
+    return Sedan::loadFromPath(fname);
 }
 
-Sedan Sedan::loadFromPath(std::string path) {
+Sedan Sedan::loadFromPath(const std::string& path) {
     if (!fs::exists(path)) {
         // File needs to exist to read anything
         throw;
@@ -89,7 +84,7 @@ Sedan Sedan::loadFromPath(std::string path) {
     return Sedan::deserializeFromJSON(importedJSON);
 }
 
-std::string Sedan::to_formatted_string() const {
+std::string Sedan::to_formatted_string() {
     std::string baseString = Vehicle::to_formatted_string();
 
     baseString += "  Trunk capacity: " + std::to_string(this->trunkCapacity) + " kg\n";

@@ -122,18 +122,20 @@ public:
     /**
      * Loads in a Person instance from a file given its UUID
      * @param uuid the UUID of the object
+     * @param vehicleUUIDsToPointers a map of UUIDs to Vehicle pointers loaded in from their folders
      * @return An instance of the deserialized Person from the JSON file
      * @throws runtime_error if a file with the UUID does not exist
      */
-    static Person loadFromUUID(std::string uuid);
+    static Person loadFromUUID(std::string uuid, std::map<std::string, Vehicle*>& vehicleUUIDsToPointers);
 
     /**
      * Loads in a Person instance from a file given its path
      * @param path the path of the serialized instance
+     * @param vehicleUUIDsToPointers a map of UUIDs to Vehicle pointers loaded in from their folders
      * @return An instance of the deserialized Person from the JSON file
      * @throws runtime_error if a file does not exist at given path
      */
-    static Person loadFromPath(std::string path);
+    static Person loadFromPath(std::string path, std::map<std::string, Vehicle*>& vehicleUUIDsToPointers);
 
     std::vector<Vehicle *> vehicles;
     BankAccount *bankAccount;

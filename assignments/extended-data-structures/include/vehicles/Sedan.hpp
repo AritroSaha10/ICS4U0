@@ -17,10 +17,11 @@ public:
      * @param horsepower horsepower of sedan
      * @param maxSpeed max speed of sedan, in km/h
      * @param trunkCapacity trunk capacity available in sedan, in kilograms
+     * @param engineCylinderCount number of cylinders in the engine
      * @param color color of sedan
      */
     Sedan(std::string name, double price, std::string manufacturer, double mileage, double horsepower, double maxSpeed,
-          double trunkCapacity, double engineCylinderCount, std::string color);
+          double trunkCapacity, int engineCylinderCount, std::string color);
 
     /**
      * Get the max weight that can be in the trunk.
@@ -61,7 +62,7 @@ public:
      * @return An instance of the deserialized Sedan from the JSON file
      * @throws runtime_error if a file with the UUID does not exist
      */
-    static Sedan loadFromUUID(std::string uuid);
+    static Sedan loadFromUUID(const std::string& uuid);
 
     /**
      * Loads in a Sedan instance from a file given its path
@@ -69,15 +70,15 @@ public:
      * @return An instance of the deserialized Sedan from the JSON file
      * @throws runtime_error if a file does not exist at given path
      */
-    static Sedan loadFromPath(std::string path);
+    static Sedan loadFromPath(const std::string& path);
 
     /**
      * Prepares the information within the Sedan class to be printed as a string.
      * @return formatted string of all of the info in Sedan
      */
-    std::string to_formatted_string() const override;
+    std::string to_formatted_string() override;
 
 private:
     double trunkCapacity;
-    double engineCylinderCount;
+    int engineCylinderCount;
 };

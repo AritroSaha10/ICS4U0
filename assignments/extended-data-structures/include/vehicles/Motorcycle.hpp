@@ -8,6 +8,9 @@ enum MOTORCYCLE_TYPE {
     TOURING
 };
 
+MOTORCYCLE_TYPE convertMotorcycleTypeStrToEnum(std::string);
+std::string convertMotorcycleTypeEnumToStr(MOTORCYCLE_TYPE);
+
 class Motorcycle : public Vehicle {
 public:
     /**
@@ -29,13 +32,13 @@ public:
      * Get the engine size of the motorcycle
      * @return The engine size of the motorcycle in CC
      */
-    double getEngineSize();
+    double getEngineSize() const;
 
     /**
      * Get the max acceleration of the motorcycle
      * @return The max acceleration of the motorcycle in m/s^2
      */
-    double getMaxAccel();
+    double getMaxAccel() const;
 
     /**
      * Roughly approximate the fuel usage for the vehicle to travel a certain amount of kilometres.
@@ -78,7 +81,7 @@ public:
      * Prepares the information within the Motorcycle class to be printed as a string.
      * @return formatted string of all of the info in Motorcycle
      */
-    std::string to_formatted_string() const override;
+    std::string to_formatted_string() override;
 private:
     double engineSize; // in CC
     double maxAcceleration; // in m/s^2

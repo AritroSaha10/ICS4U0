@@ -133,7 +133,7 @@ Person Person::deserializeFromJSON(const json &data, std::map<std::string, Vehic
                      data["height"].get<double>(),
                      tmpAccount, data["uuid"].get<std::string>()};
 
-    for (const std::string& uuid: data["vehicles"].get<json>()) {
+    for (std::string uuid: data["vehicles"].get<json>()) {
         // tmpPerson.vehicles.push_back(new Vehicle(Vehicle::deserializeFromJSON(vehicleData)));
         if (!vehicleUUIDsToPointers.contains(uuid)) {
             std::cout << "WARN: Vehicle of UUID " << uuid << " does not exist! Skipping.\n";
@@ -165,7 +165,7 @@ void Person::saveAsFile() {
     file.close();
 }
 
-Person Person::loadFromPath(std::string path) {
+Person Person::loadFromPath(std::string path, std::map<std::string, Vehicle*>& vehicleUUIDsToPointers) {
     if (!fs::exists(path)) {
         // File needs to exist to read anything
         throw std::runtime_error(path + " does not exist");
@@ -175,11 +175,11 @@ Person Person::loadFromPath(std::string path) {
     json importedJSON;
     file >> importedJSON;
 
-    return Person::deserializeFromJSON(importedJSON);
+    return Person::deserializeFromJSON(importedJSON, vehicleUUIDsToPointers);
 }
 
-Person Person::loadFromUUID(std::string uuid) {
-    return Person::loadFromPath("data/people/" + uuid + ".json");
+Person Person::loadFromUUID(std::string uuid, std::map<std::string, Vehicle*>& vehicleUUIDsToPointers) {
+    return Person::loadFromPath("data/people/" + uuid + ".json", vehicleUUIDsToPointers);
 }
 
 Person::~Person() {

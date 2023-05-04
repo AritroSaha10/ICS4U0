@@ -5,17 +5,37 @@
 
 namespace fs = std::filesystem;
 
+MOTORCYCLE_TYPE convertMotorcycleTypeStrToEnum(std::string str) {
+    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) { return std::tolower(c); });
+
+    if (str == "sport") return SPORT;
+    else if (str == "cruiser") return CRUISER;
+    else if (str == "scooter") return SCOOTER;
+    else if (str == "touring") return TOURING;
+    throw;
+}
+
+std::string convertMotorcycleTypeEnumToStr(MOTORCYCLE_TYPE type) {
+    switch (type) {
+        case SPORT: return "sport";
+        case CRUISER: return "cruiser";
+        case SCOOTER: return "scooter";
+        case TOURING: return "touring";
+        default: throw;
+    }
+}
+
 Motorcycle::Motorcycle(std::string name, double price, std::string manufacturer, double mileage, double horsepower, double maxSpeed, std::string color, double engineSize, double maxAcceleration, MOTORCYCLE_TYPE motorcycleType) : Vehicle(std::move(name), price, 2, 0, 1, 1, std::move(manufacturer), mileage, horsepower, maxSpeed, std::move(color), "motorcycle") {
     this->engineSize = engineSize;
     this->maxAcceleration = maxAcceleration;
     this->motorcycleType = motorcycleType;
 }
 
-double Motorcycle::getEngineSize() {
+double Motorcycle::getEngineSize() const {
     return engineSize;
 }
 
-double Motorcycle::getMaxAccel() {
+double Motorcycle::getMaxAccel() const {
     return maxAcceleration;
 }
 
@@ -44,16 +64,7 @@ json Motorcycle::serializeToJSON() {
 
     baseData["engineSize"] = engineSize;
     baseData["maxAcceleration"] = maxAcceleration;
-
-    std::string motorcycleTypeStr;
-    switch (motorcycleType) {
-        case SPORT: motorcycleTypeStr = "sport"; break;
-        case CRUISER: motorcycleTypeStr = "cruiser"; break;
-        case SCOOTER: motorcycleTypeStr = "scooter"; break;
-        case TOURING: motorcycleTypeStr = "touring";
-    }
-
-    baseData["motorcycleType"] = motorcycleType;
+    baseData["motorcycleType"] = convertMotorcycleTypeEnumToStr(motorcycleType);
 
     return baseData;
 }
@@ -71,34 +82,18 @@ Motorcycle Motorcycle::deserializeFromJSON(const json &data) {
         sanitizedData[key] = data[key];
     }
 
-    // Convert string representation of enum back to enum, unfortunately
-    // strings don't have support with switch/case so if/else is required
-    MOTORCYCLE_TYPE motorcycleType;
-    std::string motorcycleTypeStr = data["motorcycleType"];
-    if (motorcycleTypeStr == "sport") motorcycleType = SPORT;
-    else if (motorcycleTypeStr == "cruiser") motorcycleType = CRUISER;
-    else if (motorcycleTypeStr == "scooter") motorcycleType = SCOOTER;
-    else if (motorcycleTypeStr == "touring") motorcycleType = TOURING;
-    else throw;
-
-    return {
+    Motorcycle tmp{
             data["name"], data["price"], data["manufacturer"], data["mileage"], data["horsepower"], data["maxSpeed"],
-            data["color"], data["engineSize"], data["maxAcceleration"], motorcycleType
+            data["color"], data["engineSize"], data["maxAcceleration"], convertMotorcycleTypeStrToEnum(data["motorcycleType"])
     };
+
+    tmp.uuid = data["uuid"];
+    return tmp;
 }
 
 Motorcycle Motorcycle::loadFromUUID(const std::string& uuid) {
-    std::string fname = "data/motorcycle/" + uuid + ".json";
-    if (!fs::exists(fname)) {
-        // File needs to exist to read anything
-        throw;
-    }
-
-    std::ifstream file(fname);
-    json importedJSON;
-    file >> importedJSON;
-
-    return Motorcycle::deserializeFromJSON(importedJSON);
+    std::string fname = "data/vehicles/" + uuid + ".json";
+    return Motorcycle::loadFromPath(fname);
 }
 
 Motorcycle Motorcycle::loadFromPath(const std::string& path) {
@@ -114,20 +109,12 @@ Motorcycle Motorcycle::loadFromPath(const std::string& path) {
     return Motorcycle::deserializeFromJSON(importedJSON);
 }
 
-std::string Motorcycle::to_formatted_string() const {
+std::string Motorcycle::to_formatted_string() {
     std::string baseString = Vehicle::to_formatted_string();
-
-    std::string motorcycleTypeStr;
-    switch (motorcycleType) {
-        case SPORT: motorcycleTypeStr = "sport"; break;
-        case CRUISER: motorcycleTypeStr = "cruiser"; break;
-        case SCOOTER: motorcycleTypeStr = "scooter"; break;
-        case TOURING: motorcycleTypeStr = "touring";
-    }
 
     baseString += "  Engine size: " + std::to_string(this->engineSize) + " CC\n";
     baseString += "  Max acceleration: " + std::to_string(this->maxAcceleration) + " m/s^2\n";
-    baseString += "  Motorcycle type: " + std::to_string(this->maxAcceleration) + " m/s^2\n";
+    baseString += "  Motorcycle type: " + convertMotorcycleTypeEnumToStr(this->motorcycleType) + " m/s^2\n";
 
     return baseString;
 }

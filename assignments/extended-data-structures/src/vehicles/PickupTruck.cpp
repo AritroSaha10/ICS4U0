@@ -2,12 +2,13 @@
 #include "vehicles/PickupTruck.hpp"
 #include <fstream>
 #include <filesystem>
+#include <utility>
 
 namespace fs = std::filesystem;
 
 PickupTruck::PickupTruck(std::string name, double price, std::string manufacturer, double mileage, double horsepower,
-                         double maxSpeed, double bedCapacity, double towingMaxLoad, double engineCylinderCount,
-                         std::string color) : Vehicle(name, price, 4, 2, 2, 1, std::move(manufacturer), mileage, horsepower, maxSpeed, std::move(color), "pickup-truck") {
+                         double maxSpeed, double bedCapacity, double towingMaxLoad, int engineCylinderCount,
+                         std::string color) : Vehicle(std::move(name), price, 4, 2, 2, 1, std::move(manufacturer), mileage, horsepower, maxSpeed, std::move(color), "pickup-truck") {
     this->bedCapacity = bedCapacity;
     this->towingMaxLoad = towingMaxLoad;
     this->engineCylinderCount = engineCylinderCount;
@@ -62,23 +63,18 @@ PickupTruck PickupTruck::deserializeFromJSON(const json &data) {
         sanitizedData[key] = data[key];
     }
 
-    return {
+    PickupTruck tmp{
             data["name"], data["price"], data["manufacturer"], data["mileage"], data["horsepower"], data["maxSpeed"], data["bedCapacity"], data["towingMaxLoad"], data["engineCylinderCount"], data["color"]
     };
+
+    tmp.uuid = data["uuid"];
+
+    return tmp;
 }
 
 PickupTruck PickupTruck::loadFromUUID(const std::string& uuid) {
-    std::string fname = "data/pickup-truck/" + uuid + ".json";
-    if (!fs::exists(fname)) {
-        // File needs to exist to read anything
-        throw;
-    }
-
-    std::ifstream file(fname);
-    json importedJSON;
-    file >> importedJSON;
-
-    return PickupTruck::deserializeFromJSON(importedJSON);
+    std::string fname = "data/vehicles/" + uuid + ".json";
+    return PickupTruck::loadFromPath(fname);
 }
 
 PickupTruck PickupTruck::loadFromPath(const std::string& path) {
@@ -94,7 +90,7 @@ PickupTruck PickupTruck::loadFromPath(const std::string& path) {
     return PickupTruck::deserializeFromJSON(importedJSON);
 }
 
-std::string PickupTruck::to_formatted_string() const {
+std::string PickupTruck::to_formatted_string() {
     std::string baseString = Vehicle::to_formatted_string();
 
     baseString += "  Bed capacity: " + std::to_string(this->bedCapacity) + " kg\n";

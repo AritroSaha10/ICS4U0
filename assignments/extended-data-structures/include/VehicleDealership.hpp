@@ -68,10 +68,11 @@ public:
     /**
      * Deserialize all the data from a JSON file into an instance of VehicleDealership.
      * @param data the JSON data to deserialize
+     * @param vehicleUUIDsToPointers a map of UUIDs to Vehicle pointers loaded in from their folders
      * @return a new VehicleDealership instance made using the JSON data.
      * @throws runtime_error if required key does not exist
      */
-    static VehicleDealership deserializeFromJSON(const json &data);
+    static VehicleDealership deserializeFromJSON(const json &data, std::map<std::string, Vehicle*>& vehicleUUIDsToPointers);
 
     /**
      * Save the data in the instance as a JSON file in its expected location.
@@ -82,18 +83,20 @@ public:
     /**
      * Loads in a VehicleDealership instance from a file given its UUID
      * @param uuid the UUID of the object
+     * @param vehicleUUIDsToPointers a map of UUIDs to Vehicle pointers loaded in from their folders
      * @return An instance of the deserialized VehicleDealership from the JSON file
      * @throws runtime_error if a file with the UUID does not exist
      */
-    static VehicleDealership loadFromUUID(const std::string& uuid);
+    static VehicleDealership loadFromUUID(const std::string& uuid, std::map<std::string, Vehicle*>& vehicleUUIDsToPointers);
 
     /**
      * Loads in a VehicleDealership instance from a file given its path
      * @param path the path of the serialized instance
+     * @param vehicleUUIDsToPointers a map of UUIDs to Vehicle pointers loaded in from their folders
      * @return An instance of the deserialized VehicleDealership from the JSON file
      * @throws runtime_error if a file does not exist at given path
      */
-    static VehicleDealership loadFromPath(const std::string& path);
+    static VehicleDealership loadFromPath(const std::string& path, std::map<std::string, Vehicle*>& vehicleUUIDsToPointers);
 
     /**
      * Convert the data in the instance into a string

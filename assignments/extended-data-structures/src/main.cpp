@@ -10,16 +10,24 @@
  * @cite Niels Lohmann, JSON for Modern C++, (2022), https://github.com/nlohmann/json
  *
  * @author Aritro Saha
- * Last edited: March 10, 2023
+ * Last edited: May 3, 2023
  */
 
 #include <iostream>
 #include <filesystem>
+#include <algorithm>
+#include <cctype>
+#include <string>
+#include <fstream>
 #include "BankAccount.hpp"
 #include "Person.hpp"
 #include "VehicleDealership.hpp"
 #include "util.hpp"
 #include "colorize.h"
+#include "vehicles/Vehicle.hpp"
+#include "vehicles/Motorcycle.hpp"
+#include "vehicles/PickupTruck.hpp"
+#include "vehicles/Sedan.hpp"
 
 namespace fs = std::filesystem;
 using namespace std::chrono;
@@ -27,6 +35,7 @@ using namespace std::chrono;
 Person *playerData;
 std::vector<Person *> people;
 std::vector<VehicleDealership *> dealerships;
+std::map<std::string, Vehicle*> vehicleUUIDsToPointers;
 
 /**
  * Print a list of values of pointers in order with nice formatting
@@ -47,7 +56,7 @@ void printPointerValuesWithIdx(std::vector<T *> &vec) {
 Person *generatePersonFromInput() {
     // Person-specific details
     auto firstName = promptFullLineWithValidation("First name: ", [](const std::string &str) { return !str.empty(); });
-    auto middleName = promptFullLineWithValidation("Middle name: ", [](const std::string &) { return true; });
+    auto middleName = promptFullLineWithValidation("Middle name: ", [](const std::string &) { return true; }, false);
     auto lastName = promptFullLineWithValidation("Last name: ", [](const std::string &str) { return !str.empty(); });
 
     auto birthYear = promptWithValidation<int>("Birth year: ", [](int x) { return x >= 1900; });
@@ -112,29 +121,67 @@ Vehicle *generateVehicleFromUserInputAndAttach() {
         return nullptr;
     }
 
+    Vehicle* vehicle;
+
     // Header for this section
     std::cout << color::rize("-- Create a vehicle --\n", "White", "Green");
 
     // Get all necessary info
+    auto vehicleType = promptFullLineWithValidation("Type of vehicle (sedan, pickup truck, motorcycle): ",
+                                             [](const std::string &str) {
+        std::string tmp(str);
+        std::transform(tmp.begin(), tmp.end(), tmp.begin(), [](unsigned char c) { return std::tolower(c); });
+        return tmp == "sedan" || tmp == "pickup truck" || tmp == "motorcycle";
+    });
+    // Make vehicleType lowercase
+    std::transform(vehicleType.begin(), vehicleType.end(), vehicleType.begin(), [](unsigned char c) { return std::tolower(c); });
+
+    // Global for all vehicles
     auto name = promptFullLineWithValidation("Complete name of vehicle (ex. Honda Accord 2023 Touring Hybrid): ",
                                              [](const std::string &str) { return !str.empty(); });
     auto price = promptWithValidation<double>("Price of vehicle: $", [](double x) { return x >= 0; });
     auto manufacturer = promptFullLineWithValidation("Manufacturer: ",
                                                      [](const std::string &str) { return !str.empty(); });
-    auto wheels = promptWithValidation<int>("# of wheels on vehicle: ", [](int x) { return x > 0; });
-    auto doors = promptWithValidation<int>("# of doors on vehicle: ", [](int x) { return x > 0; });
-    auto seats = promptWithValidation<int>("# of seats in vehicle: ", [](int x) { return x > 0; });
-    auto maxPassengers = promptWithValidation<int>("Maximum # of passengers in vehicle: ",
-                                                   [](int x) { return x >= 0; });
     auto mileage = promptWithValidation<double>("Starting mileage on vehicle (km): ", [](double x) { return x >= 0; });
     auto horsepower = promptWithValidation<double>("Horsepower available: ", [](double x) { return x >= 0; });
     auto maxSpeed = promptWithValidation<double>("Max speed available (km/h): ", [](double x) { return x >= 0; });
     auto color = promptFullLineWithValidation("Color (ex. Canyon River Blue Metallic): ",
                                               [](const std::string &str) { return !str.empty(); });
 
-    // Create a vehicle from info
-    auto vehicle = new Vehicle(name, price, wheels, doors, seats, maxPassengers, manufacturer, mileage, horsepower,
-                               maxSpeed, color);
+    // Vehicle type specific attributes
+    if (vehicleType == "sedan") {
+        auto trunkCapacity = promptWithValidation<double>("Max weight storable in trunk (kg): ",
+                                                  [](double x) { return x >= 0; });
+        auto cylinderCount = promptWithValidation<int>("Cylinder count in engine: ",
+                                                          [](int x) { return x > 0; });
+
+        vehicle = new Sedan(name, price, manufacturer, mileage, horsepower, maxSpeed, trunkCapacity, cylinderCount, color);
+    } else if (vehicleType == "motorcycle") {
+        auto engineSize = promptWithValidation<double>("Size of engine (CC): ",
+                                                          [](double x) { return x > 0; });
+        auto maxAcceleration = promptWithValidation<double>("Max acceleration (m/s^2): ",
+                                                          [](double x) { return x > 0; });
+        auto motorcycleTypeStr = promptFullLineWithValidation("Motorcycle Type (sport, cruiser, scooter, touring): ",
+                                                  [](const std::string &str) {
+          std::string tmp(str);
+          std::transform(tmp.begin(), tmp.end(), tmp.begin(), [](unsigned char c) { return std::tolower(c); });
+          return tmp == "sport" || tmp == "cruiser" || tmp == "scooter" || tmp == "touring";
+        });
+        auto motorcycleType = convertMotorcycleTypeStrToEnum(motorcycleTypeStr);
+
+        vehicle = new Motorcycle(name, price, manufacturer, mileage, horsepower, maxSpeed, color, engineSize, maxAcceleration, motorcycleType);
+    } else if (vehicleType == "pickup truck") {
+        auto bedCapacity = promptWithValidation<double>("Max weight storable in truck bed (kg): ",
+                                                       [](double x) { return x >= 0; });
+        auto towingMaxLoad = promptWithValidation<double>("Max towing load (kg): ",
+                                                       [](double x) { return x >= 0; });
+        auto cylinderCount = promptWithValidation<int>("Cylinder count in engine: ",
+                                                       [](int x) { return x > 0; });
+
+        vehicle = new PickupTruck(name, price, manufacturer, mileage, horsepower, maxSpeed, bedCapacity, towingMaxLoad, cylinderCount, color);
+    } else {
+        throw;
+    }
 
     // Assign the new vehicle to a dealership
     std::cout << "Vehicle successfully created: " << *vehicle << "\n";
@@ -147,6 +194,9 @@ Vehicle *generateVehicleFromUserInputAndAttach() {
                                          [](int x) { return x > 0 && x <= dealerships.size(); }) - 1;
     dealerships[idx]->giveVehicle(vehicle);
     std::cout << "Successfully generated vehicle for " << dealerships[idx]->getName() << "!\n";
+
+    // Add it to the UUID to vehicle mapping
+    vehicleUUIDsToPointers[vehicle->getUUID()] = vehicle;
 
     return vehicle;
 }
@@ -163,6 +213,11 @@ void createDataDirs() {
     // Make people directory if needed
     if (!fs::is_directory("data/people") || !fs::exists("data/people")) {
         fs::create_directory("data/people");
+    }
+
+    // Make all vehicles directory if needed
+    if (!fs::is_directory("data/vehicles") || !fs::exists("data/vehicles")) {
+        fs::create_directory("data/vehicles");
     }
 
     // Make dealership directory if needed
@@ -214,6 +269,12 @@ void saveAllData() {
         dealership->saveAsFile();
     }
 
+    // Save all data for vehicles
+    for (auto const& uuidVehiclePair : vehicleUUIDsToPointers) {
+        std::cout << "UUID saved: " << uuidVehiclePair.first << "\n";
+        uuidVehiclePair.second->saveAsFile();
+    }
+
     std::cout << "Saved all data!\n";
 }
 
@@ -235,14 +296,43 @@ int main() {
 
     // Load in all people
     createDataDirs();
+    // Load in all vehicles
+    std::string vehiclesDataPath = "data/vehicles";
+    for (const auto &entry: fs::directory_iterator(vehiclesDataPath)) {
+        std::cout << entry.path().string() << "\n";
+
+        std::ifstream file(entry.path().string());
+        json importedJSON;
+        file >> importedJSON;
+
+        Vehicle* tmp;
+        // Can't use a switch/case since its a string
+        if (!importedJSON.contains("type")) {
+            throw;
+        }
+
+        // Create the object based on what type of car it is
+        std::string vehicleType = importedJSON["type"];
+        if (vehicleType == "sedan") {
+            tmp = new Sedan(Sedan::deserializeFromJSON(importedJSON));
+        } else if (vehicleType == "pickup-truck") {
+            tmp = new PickupTruck(PickupTruck::deserializeFromJSON(importedJSON));
+        } else if (vehicleType == "motorcycle") {
+            tmp = new Motorcycle(Motorcycle::deserializeFromJSON(importedJSON));
+        } else {
+            throw;
+        }
+
+        vehicleUUIDsToPointers[tmp->getUUID()] = tmp;
+    }
     std::string peopleDataPath = "data/people";
     for (const auto &entry: fs::directory_iterator(peopleDataPath)) {
-        people.push_back(new Person(Person::loadFromPath(entry.path().string())));
+        people.push_back(new Person(Person::loadFromPath(entry.path().string(), vehicleUUIDsToPointers)));
     }
     // Load in all dealerships
     std::string dealershipsDataPath = "data/vehicle-dealership";
     for (const auto &entry: fs::directory_iterator(dealershipsDataPath))
-        dealerships.push_back(new VehicleDealership(VehicleDealership::loadFromPath(entry.path().string())));
+        dealerships.push_back(new VehicleDealership(VehicleDealership::loadFromPath(entry.path().string(), vehicleUUIDsToPointers)));
 
     // Have the player choose an account / person profile before doing anything
     switchCurrentPlayerAccount();
@@ -271,6 +361,7 @@ int main() {
         std::cout << "  -100: Quit\n";
 
         int choice = promptWithValidation<int>("Choice: ", [](int) { return true; });
+
         switch (choice) {
             // USER ACTIONS
             case 1: {
@@ -500,7 +591,10 @@ int main() {
             }
         }
 
-        promptFullLineWithValidation("\nPress enter to continue...", [](const std::string &) { return true; });
+        int c;
+        fflush(stdout);
+        do c = getchar(); while ((c != '\n') && (c != EOF));
+        promptFullLineWithValidation("\nPress enter to continue...", [](const std::string &) { return true; }, false);
         std::cout << "\n\n";
     }
 }

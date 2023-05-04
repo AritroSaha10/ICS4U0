@@ -180,17 +180,17 @@ void Vehicle::saveAsFile() {
     }
 
     // Make bank accounts directory if needed
-    if (!fs::is_directory("data/" + this->type) || !fs::exists("data/" + this->type)) {
-        fs::create_directory("data/" + this->type);
+    if (!fs::is_directory("data/vehicles") || !fs::exists("data/vehicles")) {
+        fs::create_directory("data/vehicles");
     }
 
     // Write data to file
-    std::ofstream file("data/"  + this->type + "/" + uuid + ".json");
+    std::ofstream file("data/vehicles/" + uuid + ".json");
     file << std::setw(4) << serializedJSON << std::endl;
     file.close();
 }
 
-std::string Vehicle::to_formatted_string() const {
+std::string Vehicle::to_formatted_string() {
     std::string out;
 
     out += "Vehicle Name: " + this->name + "\n";
@@ -206,11 +206,12 @@ std::string Vehicle::to_formatted_string() const {
     out += "  Horsepower: " + std::to_string(this->horsepower) + " hp" + "\n";
     out += "  Max speed: " + std::to_string(this->maxSpeed) + " km/h" + "\n";
     out += "  Color: " + this->color + "\n";
+    out += "  Fuel efficiency: " + std::to_string(1 / this->approximateFuelUsageFromKm(1)) + "km/L \n";
 
     return out;
 }
 
-std::ostream &operator<<(std::ostream &out, const Vehicle &obj) {
+std::ostream &operator<<(std::ostream &out, Vehicle &obj) {
     out << obj.to_formatted_string();
     return out;
 }
