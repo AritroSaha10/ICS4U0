@@ -18,7 +18,7 @@ double Sedan::getTrunkCapacity() const {
     return trunkCapacity;
 }
 
-double Sedan::getEngineCylinderCount() const {
+int Sedan::getEngineCylinderCount() const {
     return engineCylinderCount;
 }
 
@@ -84,8 +84,8 @@ Sedan Sedan::loadFromPath(const std::string& path) {
     return Sedan::deserializeFromJSON(importedJSON);
 }
 
-std::string Sedan::to_formatted_string() {
-    std::string baseString = Vehicle::to_formatted_string();
+std::string Sedan::toFormattedString() {
+    std::string baseString = Vehicle::toFormattedString();
 
     baseString += "  Trunk capacity: " + std::to_string(this->trunkCapacity) + " kg\n";
     baseString += "  Engine cylinder count: " + std::to_string(this->engineCylinderCount) + "\n";

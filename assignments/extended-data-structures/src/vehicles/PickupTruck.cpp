@@ -90,8 +90,8 @@ PickupTruck PickupTruck::loadFromPath(const std::string& path) {
     return PickupTruck::deserializeFromJSON(importedJSON);
 }
 
-std::string PickupTruck::to_formatted_string() {
-    std::string baseString = Vehicle::to_formatted_string();
+std::string PickupTruck::toFormattedString() {
+    std::string baseString = Vehicle::toFormattedString();
 
     baseString += "  Bed capacity: " + std::to_string(this->bedCapacity) + " kg\n";
     baseString += "  Towing max load: " + std::to_string(this->towingMaxLoad) + " kg\n";

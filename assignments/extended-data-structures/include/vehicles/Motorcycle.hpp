@@ -81,7 +81,7 @@ public:
      * Prepares the information within the Motorcycle class to be printed as a string.
      * @return formatted string of all of the info in Motorcycle
      */
-    std::string to_formatted_string() override;
+    std::string toFormattedString() override;
 private:
     double engineSize; // in CC
     double maxAcceleration; // in m/s^2

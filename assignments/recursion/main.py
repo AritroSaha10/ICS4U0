@@ -71,7 +71,7 @@ def get_tower_view() -> str:
 
     view = ""
     for name, val in rods.items():
-        view += f"{name}: {' '.join([str(x) for x in val])}"
+        view += f"{name}: {' '.join([str(x) for x in val])}\n"
     return view
 
 

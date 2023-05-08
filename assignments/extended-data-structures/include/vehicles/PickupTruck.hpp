@@ -81,7 +81,7 @@ public:
      * Prepares the information within the PickupTruck class to be printed as a string.
      * @return formatted string of all of the info in PickupTruck
      */
-    std::string to_formatted_string() override;
+    std::string toFormattedString() override;
 private:
     double bedCapacity;
     double towingMaxLoad;

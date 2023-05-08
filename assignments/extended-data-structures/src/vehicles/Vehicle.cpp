@@ -190,7 +190,7 @@ void Vehicle::saveAsFile() {
     file.close();
 }
 
-std::string Vehicle::to_formatted_string() {
+std::string Vehicle::toFormattedString() {
     std::string out;
 
     out += "Vehicle Name: " + this->name + "\n";
@@ -212,6 +212,6 @@ std::string Vehicle::to_formatted_string() {
 }
 
 std::ostream &operator<<(std::ostream &out, Vehicle &obj) {
-    out << obj.to_formatted_string();
+    out << obj.toFormattedString();
     return out;
 }

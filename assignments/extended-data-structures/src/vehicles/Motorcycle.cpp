@@ -109,8 +109,8 @@ Motorcycle Motorcycle::loadFromPath(const std::string& path) {
     return Motorcycle::deserializeFromJSON(importedJSON);
 }
 
-std::string Motorcycle::to_formatted_string() {
-    std::string baseString = Vehicle::to_formatted_string();
+std::string Motorcycle::toFormattedString() {
+    std::string baseString = Vehicle::toFormattedString();
 
     baseString += "  Engine size: " + std::to_string(this->engineSize) + " CC\n";
     baseString += "  Max acceleration: " + std::to_string(this->maxAcceleration) + " m/s^2\n";

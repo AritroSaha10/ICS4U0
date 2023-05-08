@@ -33,7 +33,7 @@ public:
      * Get the number of cylinders in the sedan's engine.
      * @return The number of cylinders in its engine.
      */
-    double getEngineCylinderCount() const;
+    int getEngineCylinderCount() const;
 
     /**
      * Roughly approximate the fuel usage for the vehicle to travel a certain amount of kilometres.
@@ -76,7 +76,7 @@ public:
      * Prepares the information within the Sedan class to be printed as a string.
      * @return formatted string of all of the info in Sedan
      */
-    std::string to_formatted_string() override;
+    std::string toFormattedString() override;
 
 private:
     double trunkCapacity;

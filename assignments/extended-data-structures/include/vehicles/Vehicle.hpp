@@ -153,7 +153,7 @@ public:
      * Prepares the information within the Vehicle class to be printed as a string.
      * @return formatted string of all of the info in Vehicle
      */
-    virtual std::string to_formatted_string();
+    virtual std::string toFormattedString();
 
     /**
      * Convert the data in the instance into a string
