@@ -6,7 +6,7 @@
  * @cite Niels Lohmann, JSON for Modern C++, (2022), https://github.com/nlohmann/json
  *
  * @author Aritro Saha
- * Last edited: May 10, 2023
+ * Last edited: May 11, 2023
  */
 
 #define RAND_DEC() ((double) rand() / RAND_MAX)
@@ -22,9 +22,9 @@
 using namespace nlohmann;
 using namespace std::chrono;
 
-const int numToPrint = 10;
-const int arrSizes[]{75000};
-const int sampleSize = 10;
+const int numToPrint = 40;
+const int arrSizes[]{5, 10, 100, 1000, 10000, 30000, 50000, 75000};
+const int sampleSize = 200;
 const std::string dataPath = "data.csv";
 
 std::vector<Vehicle*> vehicles;
@@ -178,43 +178,43 @@ int main() {
             auto start = high_resolution_clock::now();
             linearSearch<Vehicle*, double>(vehicles, vehiclesKeyFunc(vehicles[rand() % vehicles.size()]), vehiclesKeyFunc);
             auto stop = high_resolution_clock::now();
-            auto existingLinearSearchBeforeSortDuration = duration_cast<microseconds>(stop - start).count();
+            auto existingLinearSearchBeforeSortDuration = duration_cast<nanoseconds>(stop - start).count();
 
             // Run a linear search for an object that doesn't exist
             start = high_resolution_clock::now();
             linearSearch<Vehicle*, double>(vehicles, -1.0, vehiclesKeyFunc);
             stop = high_resolution_clock::now();
-            auto nonExistingLinearSearchBeforeSortDuration = duration_cast<microseconds>(stop - start).count();
+            auto nonExistingLinearSearchBeforeSortDuration = duration_cast<nanoseconds>(stop - start).count();
 
             // Sort the entire array
             start = high_resolution_clock::now();
             insertionSort<Vehicle*, double>(sortedVehicles, vehiclesKeyFunc);
             stop = high_resolution_clock::now();
-            auto insertionSortDuration = duration_cast<microseconds>(stop - start).count();
+            auto insertionSortDuration = duration_cast<nanoseconds>(stop - start).count();
 
             // Run a linear search on the sorted array for an existing object
             start = high_resolution_clock::now();
             linearSearch<Vehicle*, double>(sortedVehicles, vehiclesKeyFunc(sortedVehicles[rand() % vehicles.size()]), vehiclesKeyFunc);
             stop = high_resolution_clock::now();
-            auto existingLinearSearchAfterSortDuration = duration_cast<microseconds>(stop - start).count();
+            auto existingLinearSearchAfterSortDuration = duration_cast<nanoseconds>(stop - start).count();
 
             // Run a linear search for an object that doesn't exist
             start = high_resolution_clock::now();
             linearSearch<Vehicle*, double>(sortedVehicles, -1.0, vehiclesKeyFunc);
             stop = high_resolution_clock::now();
-            auto nonExistingLinearSearchAfterSortDuration = duration_cast<microseconds>(stop - start).count();
+            auto nonExistingLinearSearchAfterSortDuration = duration_cast<nanoseconds>(stop - start).count();
 
             // Run a binary search on the sorted array for an existing object
             start = high_resolution_clock::now();
-            linearSearch<Vehicle*, double>(sortedVehicles, vehiclesKeyFunc(sortedVehicles[rand() % vehicles.size()]), vehiclesKeyFunc);
+            binarySearch<Vehicle*, double>(sortedVehicles, vehiclesKeyFunc(sortedVehicles[rand() % vehicles.size()]), vehiclesKeyFunc);
             stop = high_resolution_clock::now();
-            auto existingBinarySearchAfterSortDuration = duration_cast<microseconds>(stop - start).count();
+            auto existingBinarySearchAfterSortDuration = duration_cast<nanoseconds>(stop - start).count();
 
             // Run a binary search for an object that doesn't exist
             start = high_resolution_clock::now();
-            linearSearch<Vehicle*, double>(sortedVehicles, -1.0, vehiclesKeyFunc);
+            binarySearch<Vehicle*, double>(sortedVehicles, -1.0, vehiclesKeyFunc);
             stop = high_resolution_clock::now();
-            auto nonExistingBinarySearchAfterSortDuration = duration_cast<microseconds>(stop - start).count();
+            auto nonExistingBinarySearchAfterSortDuration = duration_cast<nanoseconds>(stop - start).count();
 
             file << arrSize << ","
                 << testNum << ","
