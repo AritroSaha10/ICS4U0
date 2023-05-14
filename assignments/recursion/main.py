@@ -206,7 +206,8 @@ if __name__ == "__main__":
         f"It takes {len(moves)} to solve the Tower of Hanoi puzzle with the given constraints."
     )
 
-    for i, (disc_moved, rod_from, rod_to, tower_view) in enumerate(moves):
-        print(f"Step {i+1}: Move disc {disc_moved} from rod {rod_from} to {rod_to}")
-        print(tower_view)
-        print()
+    if see_moves_inp:
+        for i, (disc_moved, rod_from, rod_to, tower_view) in enumerate(moves):
+            print(f"Step {i+1}: Move disc {disc_moved} from rod {rod_from} to {rod_to}")
+            print(tower_view)
+            print()
