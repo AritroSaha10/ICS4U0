@@ -3,6 +3,7 @@ project(Algorithms)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_DEBUG_POSTFIX d)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
@@ -30,5 +31,6 @@ file(GLOB all_SRCS
         )
 
 add_executable(Algorithms ${all_SRCS})
+set_target_properties(Algorithms PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 target_link_libraries(Algorithms PRIVATE cpr::cpr)
 # target_link_libraries(DataStructures SHARED)

@@ -22,11 +22,13 @@
 #include <chrono>
 #include <thread>
 #include <filesystem>
+#include <future>
 #include <nlohmann/json.hpp>
 #include <cpr/cpr.h>
 #include <algorithm>
 #include "Vehicle.hpp"
 #include "colorize.h"
+#include "BS_thread_pool.hpp"
 
 using namespace nlohmann;
 using namespace std::chrono;
@@ -148,6 +150,9 @@ int main() {
     // Set the seed for our random number generator
     RAND_SEED();
 
+    // Thread pool to speed up tasks
+    BS::thread_pool thread_pool;
+
     // Fetch the json data for all car names
     cpr::Response res = cpr::Get(cpr::Url{"https://raw.githubusercontent.com/matthlavacka/car-list/master/car-list.json"});
     assert(res.header["content-type"] == "text/plain; charset=utf-8");
@@ -159,13 +164,27 @@ int main() {
         return vehicle->getPrice();
     };
 
-    auto runBenchmarkOnArrSize = [&](int arrSize) {
+    std::map<int, std::vector<Vehicle*>> randomVehiclesSet;
+    for (int arrSize : arrSizes) {
+        randomVehiclesSet[arrSize] = std::vector<Vehicle*>();
+        randomVehiclesSet[arrSize].reserve(arrSize);
+        for (int i = 0; i < arrSize; i++) {
+            randomVehiclesSet[arrSize].push_back(generateRandomVehicle());
+        }
+    }
+
+    auto runBenchmarkOnArrSize = [&](int arrSize, int startTestCase=1, int endTestCase=sampleSize) {
+        /*
         // Set up CSV file
         if (!fs::is_directory(dataDirectory) || !fs::exists(dataDirectory)) {
             fs::create_directory(dataDirectory);
         }
         std::fstream file;
         file.open(dataDirectory + std::to_string(arrSize) + ".csv", std::ios::out | std::ios::trunc);
+        */
+        std::stringstream file("");
+
+        /*
         file << "Object Count,"
              << "Test #,"
              << "Unsorted Existing Linear Search,"
@@ -178,18 +197,22 @@ int main() {
              << "Absent Binary Search"
              << "\n";
         // std::cout << "Object Count,Test #,Unsorted Existing Linear Search,Unsorted Absent Linear Search,Insertion Sort,Sorted Existing Linear Search,Sorted Absent Linear Search,Existing Binary Search,Absent Binary Search\n";
-
-        std::vector<Vehicle*> vehicles;
+        */
 
         // Generate necessary number of vehicles
+        /*
         vehicles.reserve(arrSize);
         for (int i = 0; i < arrSize; i++) {
             vehicles.push_back(generateRandomVehicle());
         }
+        */
+
+        std::vector<Vehicle*>& vehicles = randomVehiclesSet[arrSize];
+       
 
         // printArray(vehicles);
 
-        for (int testNum = 1; testNum <= sampleSize; testNum++) {
+        for (int testNum = startTestCase; testNum <= endTestCase; testNum++) {
             // Cloned so we don't have to generate vehicles for each sample
             std::vector<Vehicle*> sortedVehicles{vehicles};
             std::vector<Vehicle*> builtInSortedVehicles{vehicles};
@@ -258,6 +281,7 @@ int main() {
                  << existingBinarySearchAfterSortDuration << ","
                  << nonExistingBinarySearchAfterSortDuration << "\n";
 
+            /*
             std::cout << arrSize << ","
                       << testNum << ","
                       << existingLinearSearchBeforeSortDuration << ","
@@ -268,31 +292,46 @@ int main() {
                       << nonExistingLinearSearchAfterSortDuration << ","
                       << existingBinarySearchAfterSortDuration << ","
                       << nonExistingBinarySearchAfterSortDuration << "\n";
+            */
         }
 
         // Clear out the vehicles vec
-        for (Vehicle* vehicle : vehicles) {
-            delete vehicle;
-        }
-        vehicles.clear();
+        // for (Vehicle* vehicle : vehicles) {
+        //     delete vehicle;
+        // }
+        // vehicles.clear();
+        return file.str();
 
-        file.close();
+        // file.close();
     };
 
     auto start = high_resolution_clock::now();
 
-    std::vector<std::thread> threads;
+    std::vector<std::future<std::string>> futures;
 
     for (const int arrSize : arrSizes) {
-        threads.emplace_back(runBenchmarkOnArrSize, arrSize);
+       for (int testNum = 1; testNum <= sampleSize; testNum++) {
+            futures.push_back(thread_pool.submit(runBenchmarkOnArrSize, arrSize, testNum, testNum));
+       }
     }
 
-    for (auto& thread : threads) {
-        thread.join();
+    std::vector<std::string> results;
+    for (auto& future : futures) {
+        future.wait();
+        std::string tmp(future.get());
+        results.push_back(tmp);
+        std::cout << tmp;
     }
+
 
     auto stop = high_resolution_clock::now();
     auto totalDuration = duration_cast<seconds>(stop - start).count();
+
+    for (auto str : results) {
+        std::cout << str;
+        // todo: add to file
+    }
+
     std::cout << "Complete, took " << totalDuration << "s.\n";
 
     return 0;

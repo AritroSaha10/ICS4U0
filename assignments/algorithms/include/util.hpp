@@ -5,6 +5,7 @@
 #include <sstream>
 #include <iomanip>
 #include <iostream>
+#include <functional>
 
 /**
  * Generates a UUIDv4.
