@@ -1,12 +1,13 @@
 /**
- * Name: Sorting
- * Description: write shit here lol
+ * Name: Algorithm Benchmarker (Multithreaded)
+ * Description: A benchmarking programming that runs various different sorting & searching algorithms on arrays of different sizes. Its settings can also be dynamically configured. For example, you can change the different array sizes, sample sizes, and more just from the top of this file. In addition, it uses multithreading in order to speed up the benchmarking processes and utilize the entire CPU.
  *
  * @cite Feng Wang, Colorize, (2020), GitHub repository, https://github.com/fengwang/colorize
  * @cite Niels Lohmann, JSON for Modern C++, (2022), https://github.com/nlohmann/json
+ * @cite Barak Shoshany, BS::thread_pool (2023), GitHub repository, https://github.com/bshoshany/thread-pool.git
  *
  * @author Aritro Saha
- * Last edited: May 11, 2023
+ * Last edited: May 14, 2023
  */
 
 #define RAND_DEC() ((double) rand() / RAND_MAX)
@@ -20,8 +21,6 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
-#include <thread>
-#include <filesystem>
 #include <future>
 #include <nlohmann/json.hpp>
 #include <cpr/cpr.h>
@@ -37,12 +36,37 @@ namespace fs = std::filesystem;
 const int numToPrint = 40;
 const int arrSizes[]{5, 10, 100, 1000, 10000, 30000, 50000, 75000};
 const int sampleSize = 200;
-const std::string dataDirectory = "data/";
+const std::string dataPath = "data.csv";
 
 json carData;
 
+/**
+ * Round a value to a specific precision
+ * @param value Value to round
+ * @param precision Precision to round to (ex. round to nearest 100)
+ * @return Rounded value
+ */
 double roundTo(double value, double precision = 1.0) {
     return std::round(value / precision) * precision;
+}
+
+/**
+ * Gets the required key from a vehicle.
+ * @param vehicle Vehicle object to get key from
+ * @return key value
+ */
+double getKeyFromVehicle(Vehicle* vehicle) {
+    return vehicle->getPrice();
+}
+
+/**
+ * Compares two vehicle objects
+ * @param a first vehicle
+ * @param b second vehicle
+ * @return if a < b
+ */
+bool compareVehicles(Vehicle* a, Vehicle* b) {
+    return getKeyFromVehicle(a) < getKeyFromVehicle(b);
 }
 
 /**
@@ -73,6 +97,15 @@ void printArray(std::vector<T *> &vec) {
     }
 }
 
+/**
+ * Linearly search for a value. O(n)
+ * @tparam T1 Vector element type
+ * @tparam T2 Element key type
+ * @param vec Vector to search
+ * @param value Value to search for
+ * @param extractKey Function to extract key value from
+ * @return Index of item
+ */
 template<class T1, class T2>
 int linearSearch(std::vector<T1>& vec, T2 value, std::function<T2(T1)> extractKey) {
     for (int i = 0; i < vec.size(); i++) {
@@ -84,6 +117,15 @@ int linearSearch(std::vector<T1>& vec, T2 value, std::function<T2(T1)> extractKe
     return -1;
 }
 
+/**
+ * Search for a value using binary search. O(log n)
+ * @tparam T1 Vector element type
+ * @tparam T2 Element key type
+ * @param vec Sorted vector to search
+ * @param value Value to search for
+ * @param extractKey Function to extract key value from
+ * @return Index of item
+ */
 template<class T1, class T2>
 int binarySearch(std::vector<T1>& vec, T2 value, std::function<T2(T1)> extractKey) {
     int start = 0, end = vec.size() - 1;
@@ -103,15 +145,21 @@ int binarySearch(std::vector<T1>& vec, T2 value, std::function<T2(T1)> extractKe
     return -1;
 }
 
-template<class T1, class T2>
-std::vector<T1> insertionSort(std::vector<T1>& vec, std::function<T2(T1)> extractKey) {
+/**
+ * Runs insertion sort on a vector array. Changes the vector in place.
+ * @tparam T1 Data type for unsorted vector
+ * @param vec Vector to sort
+ * @param compareFunc Function to compare one element to another. Should return true if a < b
+ * @return A sorted version of the array.
+ */
+template<class T1>
+std::vector<T1> insertionSort(std::vector<T1>& vec, std::function<bool(T1 a, T1 b)> compareFunc) {
     for (int i = 0; i <= vec.size() - 1; i++) {
         Vehicle* element = vec[i];
-        T2 key = extractKey(element); // use current element as point of comparison
         int j = i - 1; // set idx to start comparison with
 
         // While the element before it is larger, swap them
-        for (; j >= 0 && extractKey(vec[j]) > key; j--) {
+        for (; j >= 0 && !compareFunc(vec[j], element); j--) {
             vec[j + 1] = vec[j];
         }
 
@@ -122,6 +170,10 @@ std::vector<T1> insertionSort(std::vector<T1>& vec, std::function<T2(T1)> extrac
     return vec;
 }
 
+/**
+ * Generates a random Vehicle with random data.
+ * @return Pointer to new Vehicle instance
+ */
 Vehicle* generateRandomVehicle() {
     std::string name;
     double price, mileage, horsepower, maxSpeed;
@@ -159,178 +211,152 @@ int main() {
     assert(res.status_code == 200);
     carData = json::parse(res.text);
 
-    // Key function for sorting
-    auto vehiclesKeyFunc = [](Vehicle* vehicle){
-        return vehicle->getPrice();
-    };
-
+    // Store all the random sets of Vehicles first, don't have to re-gen per thread
     std::map<int, std::vector<Vehicle*>> randomVehiclesSet;
-    for (int arrSize : arrSizes) {
-        randomVehiclesSet[arrSize] = std::vector<Vehicle*>();
-        randomVehiclesSet[arrSize].reserve(arrSize);
-        for (int i = 0; i < arrSize; i++) {
-            randomVehiclesSet[arrSize].push_back(generateRandomVehicle());
-        }
+
+    // Only generate a random set of Vehicles for the largest array size
+    const int largestArrSize = arrSizes[(sizeof(arrSizes) / sizeof(arrSizes[0])) - 1];
+    randomVehiclesSet[largestArrSize] = std::vector<Vehicle*>();
+    randomVehiclesSet[largestArrSize].reserve(largestArrSize);
+    for (int i = 0; i < largestArrSize; i++) {
+        randomVehiclesSet[largestArrSize].push_back(generateRandomVehicle());
     }
 
-    auto runBenchmarkOnArrSize = [&](int arrSize, int startTestCase=1, int endTestCase=sampleSize) {
-        /*
-        // Set up CSV file
-        if (!fs::is_directory(dataDirectory) || !fs::exists(dataDirectory)) {
-            fs::create_directory(dataDirectory);
-        }
-        std::fstream file;
-        file.open(dataDirectory + std::to_string(arrSize) + ".csv", std::ios::out | std::ios::trunc);
-        */
-        std::stringstream file("");
+    // Fill the rest of the arrays by getting subsets of the largest array
+    for (int i = 0; i < (sizeof(arrSizes) / sizeof(arrSizes[0])) - 1; i++) {
+        const int arrSize = arrSizes[i];
+        randomVehiclesSet[arrSize] = std::vector<Vehicle*>(
+                randomVehiclesSet[largestArrSize].begin(),
+                randomVehiclesSet[largestArrSize].begin() + arrSize
+        );
+    }
 
-        /*
-        file << "Object Count,"
-             << "Test #,"
-             << "Unsorted Existing Linear Search,"
-             << "Unsorted Absent Linear Search,"
-             << "Insertion Sort,"
-             << "Built-in Sort,"
-             << "Sorted Existing Linear Search,"
-             << "Sorted Absent Linear Search,"
-             << "Existing Binary Search,"
-             << "Absent Binary Search"
-             << "\n";
-        // std::cout << "Object Count,Test #,Unsorted Existing Linear Search,Unsorted Absent Linear Search,Insertion Sort,Sorted Existing Linear Search,Sorted Absent Linear Search,Existing Binary Search,Absent Binary Search\n";
-        */
+    auto runBenchmarkOnArrSize = [&](int arrSize, int testNum) {
+        std::stringstream ss("");
 
         // Generate necessary number of vehicles
-        /*
-        vehicles.reserve(arrSize);
-        for (int i = 0; i < arrSize; i++) {
-            vehicles.push_back(generateRandomVehicle());
-        }
-        */
-
         std::vector<Vehicle*>& vehicles = randomVehiclesSet[arrSize];
-       
 
-        // printArray(vehicles);
+        // Cloned so we don't have to generate vehicles for each sample
+        std::vector<Vehicle*> sortedVehicles{vehicles};
+        std::vector<Vehicle*> builtInSortedVehicles{vehicles};
 
-        for (int testNum = startTestCase; testNum <= endTestCase; testNum++) {
-            // Cloned so we don't have to generate vehicles for each sample
-            std::vector<Vehicle*> sortedVehicles{vehicles};
-            std::vector<Vehicle*> builtInSortedVehicles{vehicles};
+        // Run a linear search for an existing object
+        double valToLookFor = sortedVehicles[rand() % vehicles.size()]->getPrice();
+        auto start = high_resolution_clock::now();
+        linearSearch<Vehicle*, double>(vehicles, valToLookFor, getKeyFromVehicle);
+        auto stop = high_resolution_clock::now();
+        auto existingLinearSearchBeforeSortDuration = duration_cast<nanoseconds>(stop - start).count();
 
-            // Run a linear search for an existing object
-            double valToLookFor = vehiclesKeyFunc(sortedVehicles[rand() % vehicles.size()]);
-            auto start = high_resolution_clock::now();
-            linearSearch<Vehicle*, double>(vehicles, valToLookFor, vehiclesKeyFunc);
-            auto stop = high_resolution_clock::now();
-            auto existingLinearSearchBeforeSortDuration = duration_cast<nanoseconds>(stop - start).count();
+        // Run a linear search for an object that doesn't exist
+        start = high_resolution_clock::now();
+        linearSearch<Vehicle*, double>(vehicles, 1.0e10, getKeyFromVehicle);
+        stop = high_resolution_clock::now();
+        auto nonExistingLinearSearchBeforeSortDuration = duration_cast<nanoseconds>(stop - start).count();
 
-            // Run a linear search for an object that doesn't exist
-            start = high_resolution_clock::now();
-            linearSearch<Vehicle*, double>(vehicles, 1.0e10, vehiclesKeyFunc);
-            stop = high_resolution_clock::now();
-            auto nonExistingLinearSearchBeforeSortDuration = duration_cast<nanoseconds>(stop - start).count();
+        // Sort the entire array using insertion sort
+        start = high_resolution_clock::now();
+        insertionSort<Vehicle*>(sortedVehicles, compareVehicles);
+        stop = high_resolution_clock::now();
+        auto insertionSortDuration = duration_cast<nanoseconds>(stop - start).count();
 
-            // Sort the entire array using insertion sort
-            start = high_resolution_clock::now();
-            insertionSort<Vehicle*, double>(sortedVehicles, vehiclesKeyFunc);
-            stop = high_resolution_clock::now();
-            auto insertionSortDuration = duration_cast<nanoseconds>(stop - start).count();
+        // Sort the entire array using func from STD
+        start = high_resolution_clock::now();
+        std::sort(builtInSortedVehicles.begin(), builtInSortedVehicles.end(), compareVehicles);
+        stop = high_resolution_clock::now();
+        auto builtInSortDuration = duration_cast<nanoseconds>(stop - start).count();
 
-            // Sort the entire array using func from STD
-            start = high_resolution_clock::now();
-            std::sort(builtInSortedVehicles.begin(), builtInSortedVehicles.end(), [vehiclesKeyFunc](Vehicle* a, Vehicle* b){
-                return vehiclesKeyFunc(a) < vehiclesKeyFunc(b);
-            });
-            stop = high_resolution_clock::now();
-            auto builtInSortDuration = duration_cast<nanoseconds>(stop - start).count();
+        // Run a linear search on the sorted array for an existing object
+        start = high_resolution_clock::now();
+        linearSearch<Vehicle*, double>(sortedVehicles, valToLookFor, getKeyFromVehicle);
+        stop = high_resolution_clock::now();
+        auto existingLinearSearchAfterSortDuration = duration_cast<nanoseconds>(stop - start).count();
 
-            // Run a linear search on the sorted array for an existing object
-            valToLookFor = vehiclesKeyFunc(sortedVehicles[rand() % vehicles.size()]);
-            start = high_resolution_clock::now();
-            linearSearch<Vehicle*, double>(sortedVehicles, valToLookFor, vehiclesKeyFunc);
-            stop = high_resolution_clock::now();
-            auto existingLinearSearchAfterSortDuration = duration_cast<nanoseconds>(stop - start).count();
+        // Run a linear search for an object that doesn't exist
+        start = high_resolution_clock::now();
+        linearSearch<Vehicle*, double>(sortedVehicles, 1.0e10, getKeyFromVehicle);
+        stop = high_resolution_clock::now();
+        auto nonExistingLinearSearchAfterSortDuration = duration_cast<nanoseconds>(stop - start).count();
 
-            // Run a linear search for an object that doesn't exist
-            start = high_resolution_clock::now();
-            linearSearch<Vehicle*, double>(sortedVehicles, 1.0e10, vehiclesKeyFunc);
-            stop = high_resolution_clock::now();
-            auto nonExistingLinearSearchAfterSortDuration = duration_cast<nanoseconds>(stop - start).count();
+        // Run a binary search on the sorted array for an existing object
+        start = high_resolution_clock::now();
+        binarySearch<Vehicle*, double>(sortedVehicles, valToLookFor, getKeyFromVehicle);
+        stop = high_resolution_clock::now();
+        auto existingBinarySearchAfterSortDuration = duration_cast<nanoseconds>(stop - start).count();
 
-            // Run a binary search on the sorted array for an existing object
-            valToLookFor = vehiclesKeyFunc(sortedVehicles[rand() % vehicles.size()]);
-            start = high_resolution_clock::now();
-            binarySearch<Vehicle*, double>(sortedVehicles, valToLookFor, vehiclesKeyFunc);
-            stop = high_resolution_clock::now();
-            auto existingBinarySearchAfterSortDuration = duration_cast<nanoseconds>(stop - start).count();
+        // Run a binary search for an object that doesn't exist
+        start = high_resolution_clock::now();
+        binarySearch<Vehicle*, double>(sortedVehicles, 1.0e10, getKeyFromVehicle);
+        stop = high_resolution_clock::now();
+        auto nonExistingBinarySearchAfterSortDuration = duration_cast<nanoseconds>(stop - start).count();
 
-            // Run a binary search for an object that doesn't exist
-            start = high_resolution_clock::now();
-            binarySearch<Vehicle*, double>(sortedVehicles, 1.0e10, vehiclesKeyFunc);
-            stop = high_resolution_clock::now();
-            auto nonExistingBinarySearchAfterSortDuration = duration_cast<nanoseconds>(stop - start).count();
+        ss << arrSize << ","
+           << testNum << ","
+           << existingLinearSearchBeforeSortDuration << ","
+           << nonExistingLinearSearchBeforeSortDuration << ","
+           << insertionSortDuration << ","
+           << builtInSortDuration << ","
+           << existingLinearSearchAfterSortDuration << ","
+           << nonExistingLinearSearchAfterSortDuration << ","
+           << existingBinarySearchAfterSortDuration << ","
+           << nonExistingBinarySearchAfterSortDuration << "\n";
 
-            file << arrSize << ","
-                 << testNum << ","
-                 << existingLinearSearchBeforeSortDuration << ","
-                 << nonExistingLinearSearchBeforeSortDuration << ","
-                 << insertionSortDuration << ","
-                 << builtInSortDuration << ","
-                 << existingLinearSearchAfterSortDuration << ","
-                 << nonExistingLinearSearchAfterSortDuration << ","
-                 << existingBinarySearchAfterSortDuration << ","
-                 << nonExistingBinarySearchAfterSortDuration << "\n";
-
-            /*
-            std::cout << arrSize << ","
-                      << testNum << ","
-                      << existingLinearSearchBeforeSortDuration << ","
-                      << nonExistingLinearSearchBeforeSortDuration << ","
-                      << insertionSortDuration << ","
-                      << builtInSortDuration << ","
-                      << existingLinearSearchAfterSortDuration << ","
-                      << nonExistingLinearSearchAfterSortDuration << ","
-                      << existingBinarySearchAfterSortDuration << ","
-                      << nonExistingBinarySearchAfterSortDuration << "\n";
-            */
-        }
-
-        // Clear out the vehicles vec
-        // for (Vehicle* vehicle : vehicles) {
-        //     delete vehicle;
-        // }
-        // vehicles.clear();
-        return file.str();
-
-        // file.close();
+        // Turn it into a string from a stream before returning
+        return ss.str();
     };
 
+    runBenchmarkOnArrSize(10000, 1);
+
+    // Start the timer
     auto start = high_resolution_clock::now();
 
     std::vector<std::future<std::string>> futures;
 
+    // Generate all the tasks for the thread pool
     for (const int arrSize : arrSizes) {
-       for (int testNum = 1; testNum <= sampleSize; testNum++) {
-            futures.push_back(thread_pool.submit(runBenchmarkOnArrSize, arrSize, testNum, testNum));
-       }
+        for (int testNum = 1; testNum <= sampleSize; testNum++) {
+            futures.push_back(thread_pool.submit(runBenchmarkOnArrSize, arrSize, testNum));
+        }
     }
 
+    // Wait for all of their results
     std::vector<std::string> results;
     for (auto& future : futures) {
         future.wait();
         std::string tmp(future.get());
         results.push_back(tmp);
-        std::cout << tmp;
+        // std::cout << tmp; // Removed to improve performance
     }
 
-
+    // Get stop time and calculate total duration
     auto stop = high_resolution_clock::now();
     auto totalDuration = duration_cast<seconds>(stop - start).count();
 
-    for (auto str : results) {
+    // Set up CSV file
+    std::fstream file;
+    file.open(dataPath, std::ios::out | std::ios::trunc);
+
+    // Setup file header
+    file << "Object Count,"
+         << "Test #,"
+         << "Unsorted Existing Linear Search,"
+         << "Unsorted Absent Linear Search,"
+         << "Insertion Sort,"
+         << "Built-in Sort,"
+         << "Sorted Existing Linear Search,"
+         << "Sorted Absent Linear Search,"
+         << "Existing Binary Search,"
+         << "Absent Binary Search"
+         << "\n";
+
+    // Push all futures into file
+    for (const auto& str : results) {
         std::cout << str;
-        // todo: add to file
+        file << str;
     }
+
+    // Close file
+    file.close();
 
     std::cout << "Complete, took " << totalDuration << "s.\n";
 
