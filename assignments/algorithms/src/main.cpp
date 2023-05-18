@@ -1,13 +1,21 @@
 /**
  * Name: Algorithm Benchmarker (Multithreaded)
- * Description: A benchmarking programming that runs various different sorting & searching algorithms on arrays of different sizes. Its settings can also be dynamically configured. For example, you can change the different array sizes, sample sizes, and more just from the top of this file. In addition, it uses multithreading in order to speed up the benchmarking processes and utilize the entire CPU.
+ * Description: A benchmarking programming that runs various different sorting &
+ * searching algorithms on arrays of different sizes. Its settings can also be
+ * dynamically configured. For example, you can change the different array sizes,
+ * sample sizes, and more just from the top of this file. In addition, it uses
+ * multithreading in order to speed up the benchmarking processes and utilize
+ * the entire CPU.
  *
  * @cite Feng Wang, Colorize, (2020), GitHub repository, https://github.com/fengwang/colorize
  * @cite Niels Lohmann, JSON for Modern C++, (2022), https://github.com/nlohmann/json
  * @cite Barak Shoshany, BS::thread_pool (2023), GitHub repository, https://github.com/bshoshany/thread-pool.git
+ * @cite GeeksForGeeks, Binary Search – Data Structure and Algorithm Tutorials, Article, https://www.geeksforgeeks.org/binary-search/
+ * @cite GeeksForGeeks, Insertion Sort – Data Structure and Algorithm Tutorials, Article, https://www.geeksforgeeks.org/insertion-sort/
+ * @cite GeeksForGeeks, IntroSort or Introspective Sort, Article, https://www.geeksforgeeks.org/introsort-or-introspective-sort/
  *
  * @author Aritro Saha
- * Last edited: May 14, 2023
+ * Last edited: May 17, 2023
  */
 
 #define RAND_DEC() ((double) rand() / RAND_MAX)
@@ -268,25 +276,25 @@ int main() {
 
         // Run a linear search on the sorted array for an existing object
         start = high_resolution_clock::now();
-        linearSearch<Vehicle*, double>(sortedVehicles, valToLookFor, getKeyFromVehicle);
+        linearSearch<Vehicle*, double>(builtInSortedVehicles, valToLookFor, getKeyFromVehicle);
         stop = high_resolution_clock::now();
         auto existingLinearSearchAfterSortDuration = duration_cast<nanoseconds>(stop - start).count();
 
         // Run a linear search for an object that doesn't exist
         start = high_resolution_clock::now();
-        linearSearch<Vehicle*, double>(sortedVehicles, 1.0e10, getKeyFromVehicle);
+        linearSearch<Vehicle*, double>(builtInSortedVehicles, 1.0e10, getKeyFromVehicle);
         stop = high_resolution_clock::now();
         auto nonExistingLinearSearchAfterSortDuration = duration_cast<nanoseconds>(stop - start).count();
 
         // Run a binary search on the sorted array for an existing object
         start = high_resolution_clock::now();
-        binarySearch<Vehicle*, double>(sortedVehicles, valToLookFor, getKeyFromVehicle);
+        binarySearch<Vehicle*, double>(builtInSortedVehicles, valToLookFor, getKeyFromVehicle);
         stop = high_resolution_clock::now();
         auto existingBinarySearchAfterSortDuration = duration_cast<nanoseconds>(stop - start).count();
 
         // Run a binary search for an object that doesn't exist
         start = high_resolution_clock::now();
-        binarySearch<Vehicle*, double>(sortedVehicles, 1.0e10, getKeyFromVehicle);
+        binarySearch<Vehicle*, double>(builtInSortedVehicles, 1.0e10, getKeyFromVehicle);
         stop = high_resolution_clock::now();
         auto nonExistingBinarySearchAfterSortDuration = duration_cast<nanoseconds>(stop - start).count();
 
