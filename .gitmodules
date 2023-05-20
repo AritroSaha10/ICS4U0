@@ -3,4 +3,5 @@
 	url = https://github.com/AritroSaha10/Fraser-ICS4U.git
 [submodule "final-project"]
 	path = final-project
-	url = https://github.com/JoshuaChou10/ICS4UO-project.git
+	url = https://github.com/AritroSaha10/ReliefExchange-ICS4U.git
+    branch = master
