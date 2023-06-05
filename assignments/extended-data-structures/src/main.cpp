@@ -4,7 +4,13 @@
  * that allows users to run actions on both people and vehicle dealerships. It does this using a custom-made CLI
  * interface, prompting the user which out of the 14 available actions they'd like to run and running it
  * immediately after. It also has the ability to save its current state into JSON files in a data folder.
- * This allows users to use the program at a later time without losing their data.
+ * This allows users to use the program at a later time without losing their data. This extends on the original
+ * Data Structures assignment by adding more types of Vehicles (which use a variety of different OOP concepts),
+ * and changing the way that Vehicles are loaded in order to separate them from Person & VehicleDealership instances.
+ *
+ * For developers, this project can be built in any other way that you would build a CMake project, as this follows all
+ * necessary CMake project structure standards. If you are using an editor such as CLion and add any new files, make sure
+ * to refresh your CMake configuration so that they are included in the linker as well.
  *
  * @cite Feng Wang, Colorize, (2020), GitHub repository, https://github.com/fengwang/colorize
  * @cite Niels Lohmann, JSON for Modern C++, (2022), https://github.com/nlohmann/json
@@ -539,7 +545,7 @@ int main() {
                 break;
             }
 
-                // SYSTEM ACTIONS
+            // SYSTEM ACTIONS
             case -2: {
                 // Delete a person profile / account
                 int idx = promptWithValidation<int>("Enter the index of the account to delete: ",
@@ -591,6 +597,7 @@ int main() {
             }
         }
 
+        // Enter to continue prompt, extra getchar() needed due to newlines in stdin
         int c;
         fflush(stdout);
         do c = getchar(); while ((c != '\n') && (c != EOF));
