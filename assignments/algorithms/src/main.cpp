@@ -297,7 +297,8 @@ int main() {
         binarySearch<Vehicle*, double>(builtInSortedVehicles, 1.0e10, getKeyFromVehicle);
         stop = high_resolution_clock::now();
         auto nonExistingBinarySearchAfterSortDuration = duration_cast<nanoseconds>(stop - start).count();
-
+        
+        // Push all our CSV data into the stream
         ss << arrSize << ","
            << testNum << ","
            << existingLinearSearchBeforeSortDuration << ","
@@ -312,13 +313,12 @@ int main() {
         // Turn it into a string from a stream before returning
         return ss.str();
     };
-
-    runBenchmarkOnArrSize(10000, 1);
-
+    
+    // Vector to store all futures
+    std::vector<std::future<std::string>> futures;
+    
     // Start the timer
     auto start = high_resolution_clock::now();
-
-    std::vector<std::future<std::string>> futures;
 
     // Generate all the tasks for the thread pool
     for (const int arrSize : arrSizes) {
