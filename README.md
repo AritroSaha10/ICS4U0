@@ -14,6 +14,6 @@ This is a submodule referencing the course repo that I've forked to add my own c
 Please do not plagarize my code (submit my work as yours). 
 
 ## Copyright
-© Copyright Aritro Saha 2023. All rights reserved. All of the [outlines / tasks / criterias](https://github.com/johnfraserss/ICS4U) belong to my teacher.
+View [LICENSE](LICENSE) for more information. All of the [outlines / tasks / criterias](https://github.com/johnfraserss/ICS4U) belong to my teacher.
 
 
