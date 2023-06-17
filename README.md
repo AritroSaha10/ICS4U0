@@ -1,13 +1,15 @@
 # ICS4U0 Coursework
 My coursework while taking ICS4U0 (Computer Science).
 
-## Assignments
+## Folder Descriptions
+
+### Assignments
 All of the assignments that I submitted.
 
-## Projects
-The final project will later be added as a submodule.
+### Final Project
+The overarching project that I worked on throughout the span of the course.
 
-## Course Repo
+### Course Repo
 This is a submodule referencing the course repo that I've forked to add my own changes (ex. adding examples in Golang).
 
 ## Notice
